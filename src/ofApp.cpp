@@ -174,25 +174,25 @@ void ofApp::update(){
 
 
 		mut.lock();
+		memcpy(depth_row, lastDepthFrame.depthInMillimeters(), sizeof(float)*640*480);
+		memcpy(colors, lastVisibleFrame.rgbData(), sizeof(uint8_t)*640*480*3);
+		mut.unlock();
 
-
-		const float* depth_row = lastDepthFrame.depthInMillimeters();
-		const uint8_t* colors = lastVisibleFrame.rgbData();
 		int w = lastDepthFrame.width();
 		int h = lastDepthFrame.height();
 		int threshold = 15;
 
 		mesh.clear();
 
-
 		uint16_t* depth = new uint16_t[2*480*640];
 
+
 		int raw_index = 0;
-		for (unsigned v = 0; v < 480; ++v, depth_row += 640)
+		for (unsigned v = 0; v < 480; ++v)
 		{
 			for (unsigned u = 0; u < 640; ++u, ++raw_index)
 			{
-				float raw_depth = depth_row[u];
+				float raw_depth = depth_row[u+v*640];
 				if (!std::isfinite(raw_depth))
 					continue;
 
@@ -262,7 +262,7 @@ void ofApp::update(){
 						mesh.addColor(diag_color);
 
 					}
-					//Triangle 2, Bottom Right, if triangle 1 was drawn
+					//Triangle 2, Bottom Right
 					if(abs(depth[x+w*y]-bottom_point) < threshold and abs(depth[x+w*y]-diag_point) < threshold and abs(bottom_point-diag_point) < threshold){
 						mesh.addVertex(ofVec3f(-x, -y, -depth[x+w*y]));
 						mesh.addVertex(ofVec3f(-x, -(y-1), -bottom_point));
@@ -274,7 +274,6 @@ void ofApp::update(){
 				}
 			}
 		}
-		mut.unlock();
 	}
 }
 

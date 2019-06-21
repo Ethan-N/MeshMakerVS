@@ -30,6 +30,8 @@ public:
     ofVboMesh mesh;
     ofEasyCam cam;
     
+	float depth_row[640 * 480];
+	uint8_t colors[640 * 480 * 3];
 
 	//Structure st;
     Receiver receiver;
