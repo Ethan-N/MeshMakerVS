@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "structure.h"
+//#include "structure.h"
 #include "ofxOsc.h"
 #include "receiver.h"
 #include "msgDelay.h"
@@ -31,7 +31,7 @@ public:
     ofEasyCam cam;
     
 
-	Structure st;
+	//Structure st;
     Receiver receiver;
     MsgDelay<Orientation7> camDelay;
     // Caching the previous frame make it easy to get the delta

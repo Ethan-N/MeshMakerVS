@@ -1,6 +1,5 @@
 #include "ofApp.h"
 #include <ST/CaptureSession.h>
-#include <math.h>
 
 //Variable Declarations, mostly for camera
 mutex mut;
@@ -163,12 +162,12 @@ void ofApp::update(){
 	Orientation7 camTriggerPosition = receiver.getPreviousCameraTrigger();
 	Orientation7 controller = receiver.getController();
 
-
+	/*
 	cam.setOrientation(cor.quat);
 	ofLog() << cor.quat;
 	cam.setPosition(cor.pos*150);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
-
+	*/
 
 	if(lastDepthFrame.isValid() && lastRenderedTimestamp != lastDepthFrame.timestamp()){
 		lastRenderedTimestamp = lastDepthFrame.timestamp();
@@ -228,7 +227,7 @@ void ofApp::update(){
 
 		for (int x=1; x<w; ++x) {
 			for (int y=1; y<h; ++y) {
-				if(!(depth[x+w*y]==0) and !(isnan(depth[x+w*y]))){
+				if(!(depth[x+w*y]==0) and depth[x+w*y]==depth[x+w*y]){
 
 					ofColor start_color = ofColor(colors[(x+w*y)*3], colors[(x+w*y)*3+1], colors[(x+w*y)*3+2]);
 
@@ -241,13 +240,13 @@ void ofApp::update(){
 					float bottom_point = depth[x+w*(y-1)];
 					ofColor bottom_color = ofColor(colors[(x+w*(y-1))*3], colors[(x+w*(y-1))*3+1], colors[(x+w*(y-1))*3+2]);
 
-					if (depth[x-1+w*y]==0 or isnan(depth[x-1+w*y])){
+					if (depth[x-1+w*y]==0 or depth[x-1+w*y]!=depth[x-1+w*y]){
 						left_point = depth[x+w*y];
 					}
-					if (depth[x-1+w*(y-1)]==0 or isnan(depth[x-1+w*(y-1)])){
+					if (depth[x-1+w*(y-1)]==0 or depth[x-1+w*(y-1)]!=depth[x-1+w*(y-1)]){
 						diag_point = depth[x+w*y];
 					}
-					if (depth[x+w*(y-1)]==0 or isnan(depth[x+w*(y-1)])){
+					if (depth[x+w*(y-1)]==0 or depth[x+w*(y-1)]!=depth[x+w*(y-1)]){
 						bottom_point = depth[x+w*y];
 					}
 
@@ -285,7 +284,7 @@ void ofApp::draw(){
 	mut.lock();
 	cam.begin();
 	ofPushMatrix();
-	ofTranslate(300, 0, 1200);
+	//ofTranslate(300, 0, 1200);
 	mesh.draw();
 	ofPopMatrix();
 	mut.unlock();

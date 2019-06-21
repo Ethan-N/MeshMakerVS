@@ -37,16 +37,13 @@
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.cpp">
       <Filter>addons\ofxOsc\libs\oscpack\src\osc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\main.cpp">
+    <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\ofApp.cpp">
+    <ClCompile Include="src\ofApp.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\receiver.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\structure.cpp">
+    <ClCompile Include="src\receiver.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,16 +143,13 @@
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.h">
       <Filter>addons\ofxOsc\libs\oscpack\src\osc</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\msgDelay.h">
+    <ClInclude Include="src\msgDelay.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\ofApp.h">
+    <ClInclude Include="src\ofApp.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\receiver.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\structure.h">
+    <ClInclude Include="src\receiver.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

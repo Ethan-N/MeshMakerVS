@@ -193,9 +193,6 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\main.cpp" />
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\ofApp.cpp" />
-    <ClCompile Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\receiver.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\src\ofxOscBundle.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\src\ofxOscMessage.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\src\ofxOscParameterSync.cpp" />
@@ -208,12 +205,11 @@
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscPrintReceivedElements.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.cpp" />
     <ClCompile Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.cpp" />
-    <ClCompile Include="src\structure.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ofApp.cpp" />
+    <ClCompile Include="src\receiver.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\msgDelay.h" />
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\ofApp.h" />
-    <ClInclude Include="..\..\..\..\..\Users\ethan\Downloads\MeshMaker-master\MeshMaker-master\src\receiver.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\src\ofxOsc.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\src\ofxOscArg.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\src\ofxOscBundle.h" />
@@ -234,7 +230,9 @@
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscPrintReceivedElements.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscReceivedElements.h" />
     <ClInclude Include="..\..\..\addons\ofxOsc\libs\oscpack\src\osc\OscTypes.h" />
-    <ClInclude Include="src\structure.h" />
+    <ClInclude Include="src\msgDelay.h" />
+    <ClInclude Include="src\ofApp.h" />
+    <ClInclude Include="src\receiver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
