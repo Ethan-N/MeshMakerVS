@@ -177,6 +177,7 @@ void ofApp::update(){
 		memcpy(depth_row, lastDepthFrame.depthInMillimeters(), sizeof(float)*640*480);
 		memcpy(colors, lastVisibleFrame.rgbData(), sizeof(uint8_t)*640*480*3);
 		mut.unlock();
+
 		int w = lastDepthFrame.width();
 		int h = lastDepthFrame.height();
 		float threshold = 5;
@@ -189,7 +190,7 @@ void ofApp::update(){
 			for (unsigned u = 0; u < 640; ++u, ++raw_index)
 			{
 				float raw_depth = depth_row[u+v*640];
-				if (!std::isfinite(raw_depth))
+				if (raw_depth!=raw_depth)
 					continue;
 
 				double depth_val = raw_depth/1000.0;
