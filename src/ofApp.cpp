@@ -105,8 +105,13 @@ void run() {
 	/* Loop forever. The SessionDelegate receives samples on a background thread
 	while streaming. */
 	while (true) {
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		ofSleepMillis(1000);
 	}
+}
+
+void cameraThread() {
+	std::thread t(run);
+	t.detach();
 }
 
 
@@ -136,9 +141,8 @@ void ofApp::setup(){
 
 	//cam.lookAt(ofVec3f(0), ofVec3f(0, 0, 1));
 
-	mesh.setMode(OF_PRIMITIVE_TRIANGLES);
-
-	mesh.disableIndices();
+	//mesh.setMode(OF_PRIMITIVE_POINTS);
+	mesh.setUsage(GL_DYNAMIC_DRAW);
 
 	intrinsics = false;
 	depth_Tx = 0.0, depth_Ty = 0.0;
@@ -146,15 +150,14 @@ void ofApp::setup(){
 
 	// On macOS, a run loop is required for the Structure Core driver to function.
 
-	std::thread(run).detach();
+	cameraThread();
 }
 //--------------------------------------------------------------
 void ofApp::update(){
-
+	
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
-
 
 
 	// Get the position of the Tracker
@@ -163,30 +166,29 @@ void ofApp::update(){
 	Orientation7 controller = receiver.getController();
 
 	/*
+	
 	cam.setOrientation(cor.quat);
 	ofLog() << cor.quat;
 	cam.setPosition(cor.pos*150);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
 	*/
 
+	
 	if(lastDepthFrame.isValid() && lastRenderedTimestamp != lastDepthFrame.timestamp()){
 		lastRenderedTimestamp = lastDepthFrame.timestamp();
-
 
 		mut.lock();
 		memcpy(depth_row, lastDepthFrame.depthInMillimeters(), sizeof(float)*640*480);
 		memcpy(colors, lastVisibleFrame.rgbData(), sizeof(uint8_t)*640*480*3);
 		mut.unlock();
-
 		int w = lastDepthFrame.width();
 		int h = lastDepthFrame.height();
-		int threshold = 15;
-
-		mesh.clear();
+		float threshold = .1;
 
 		uint16_t* depth = new uint16_t[2*480*640];
 
 
+		
 		int raw_index = 0;
 		for (unsigned v = 0; v < 480; ++v)
 		{
@@ -224,52 +226,36 @@ void ofApp::update(){
 					reg_depth = new_depth;
 			}
 		}
+		
+		for (int x=0; x<w; ++x) {
+			for (int y=0; y<h; ++y) {
+				if(depth[x+w*y]!=0 and depth[x+w*y]==depth[x+w*y]){
 
-		for (int x=1; x<w; ++x) {
-			for (int y=1; y<h; ++y) {
-				if(!(depth[x+w*y]==0) and depth[x+w*y]==depth[x+w*y]){
+		
+					mesh.addVertex(ofVec3f(-x, -y, -depth[x+w*y]));
+					mesh.addColor(ofColor(colors[(x+w*y)*3], colors[(x+w*y)*3+1], colors[(x+w*y)*3+2]));
 
-					ofColor start_color = ofColor(colors[(x+w*y)*3], colors[(x+w*y)*3+1], colors[(x+w*y)*3+2]);
+					if (x == 0 or y == 0)
+						continue;
 
-					float left_point = depth[x-1+w*y];
-					ofColor left_color = ofColor(colors[((x-1)+w*y)*3], colors[((x-1)+w*y)*3+1], colors[((x-1)+w*y)*3+2]);
-
-					float diag_point = depth[x-1+w*(y-1)];
-					ofColor diag_color = ofColor(colors[((x-1)+w*(y-1))*3], colors[((x-1)+w*(y-1))*3+1], colors[((x-1)+w*(y-1))*3+2]);
-
-					float bottom_point = depth[x+w*(y-1)];
-					ofColor bottom_color = ofColor(colors[(x+w*(y-1))*3], colors[(x+w*(y-1))*3+1], colors[(x+w*(y-1))*3+2]);
-
-					if (depth[x-1+w*y]==0 or depth[x-1+w*y]!=depth[x-1+w*y]){
-						left_point = depth[x+w*y];
-					}
-					if (depth[x-1+w*(y-1)]==0 or depth[x-1+w*(y-1)]!=depth[x-1+w*(y-1)]){
-						diag_point = depth[x+w*y];
-					}
-					if (depth[x+w*(y-1)]==0 or depth[x+w*(y-1)]!=depth[x+w*(y-1)]){
-						bottom_point = depth[x+w*y];
-					}
-
+					int left_ind = x-1+w*y;
+					int diag_ind = x-1+w*(y-1);
+					int bottom_ind = x+w*(y-1);
+					
 					//Triangle 1, Top Left
-					if(abs(depth[x+w*y]-left_point) < threshold and abs(depth[x+w*y]-diag_point) < threshold and abs(left_point-diag_point) < threshold){
+					if(abs(depth[x+w*y]-depth[left_ind]) < threshold and abs(depth[x+w*y]-depth[diag_ind]) < threshold and abs(depth[left_ind]-depth[diag_ind]) < threshold){
 
-						mesh.addVertex(ofVec3f(-x, -y, -depth[x+w*y]));
-						mesh.addVertex(ofVec3f(-(x-1), -y, -left_point));
-						mesh.addVertex(ofVec3f(-(x-1), -(y-1), -diag_point));
 
-						mesh.addColor(start_color);
-						mesh.addColor(left_color);
-						mesh.addColor(diag_color);
-
+						mesh.addIndex(left_ind);
+						mesh.addIndex(x+w*y);
+						mesh.addIndex(diag_ind);
 					}
 					//Triangle 2, Bottom Right
-					if(abs(depth[x+w*y]-bottom_point) < threshold and abs(depth[x+w*y]-diag_point) < threshold and abs(bottom_point-diag_point) < threshold){
-						mesh.addVertex(ofVec3f(-x, -y, -depth[x+w*y]));
-						mesh.addVertex(ofVec3f(-x, -(y-1), -bottom_point));
-						mesh.addVertex(ofVec3f(-(x-1), -(y-1), -diag_point));
-						mesh.addColor(start_color);
-						mesh.addColor(bottom_color);
-						mesh.addColor(diag_color);
+					if(abs(depth[x+w*y]-depth[bottom_ind]) < threshold and abs(depth[x+w*y]-depth[diag_ind]) < threshold and abs(depth[bottom_ind]-depth[diag_ind]) < threshold){
+						
+						mesh.addIndex(bottom_ind);
+						mesh.addIndex(x+w*y);
+						mesh.addIndex(diag_ind);
 					}
 				}
 			}
@@ -284,6 +270,7 @@ void ofApp::draw(){
 	cam.begin();
 	ofPushMatrix();
 	//ofTranslate(300, 0, 1200);
+	ofTranslate(300,300);
 	mesh.draw();
 	ofPopMatrix();
 	mut.unlock();
