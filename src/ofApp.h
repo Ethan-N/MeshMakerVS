@@ -27,11 +27,15 @@ public:
     void gotMessage(ofMessage msg);
     
     ofTexture myDepthTexture;
-    ofVboMesh mesh;
+    ofVbo vbo;
     ofEasyCam cam;
     
 	float depth_row[640 * 480];
 	uint8_t colors[640 * 480 * 3];
+
+	ofIndexType faces[640 * 480 * 6];
+	ofVec3f points[640 * 480];
+	ofFloatColor color[640 * 480];
 
 	//Structure st;
     Receiver receiver;

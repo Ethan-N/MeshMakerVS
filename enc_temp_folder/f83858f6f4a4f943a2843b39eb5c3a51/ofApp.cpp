@@ -240,6 +240,9 @@ void ofApp::update(){
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
 					int bottom_ind = x + w * (y - 1);
+					
+					if (depth[left_ind] == 0 or depth[diag_ind] == 0 or depth[bottom_ind] == 0)
+						continue;
 
 					if (abs(depth[x + w * y] - depth[diag_ind]) < threshold) {
 						//Triangle 1, Top Left
@@ -259,10 +262,11 @@ void ofApp::update(){
 
 							index += 3;
 						}
-					}
+				}
 				}
 			}
 		}
+
 		vbo.setVertexData( &points[0], 640*480, GL_DYNAMIC_DRAW );
 		vbo.setColorData( &color[0], 640*480, GL_DYNAMIC_DRAW );
 		vbo.setIndexData( &faces[0], index, GL_DYNAMIC_DRAW );
