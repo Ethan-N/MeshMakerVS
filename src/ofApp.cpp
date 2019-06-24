@@ -230,13 +230,13 @@ void ofApp::update(){
 			for (int y=0; y<h; ++y) {
 				if (depth[x + w * y] != 0 and depth[x + w * y] == depth[x + w * y]) {
 
-					points[(x + w * y)][0] = -x;
-					points[(x + w * y)][1] = -y;
-					points[(x + w * y)][2] = -depth[x + w * y];
+					float* point = points[(x + w * y)].getPtr();
+					*point = -x;
+					*(point+1) = -y;
+					*(point+2) = -depth[x + w * y];
 
-					color[(x + w * y)].r = colors[(x + w * y) * 3] / 255.0;
-					color[(x + w * y)].g = colors[(x + w * y) * 3 + 1] / 255.0;
-					color[(x + w * y)].b = colors[(x + w * y) * 3 + 2] / 255.0;
+					uint8_t* col_pointer = &colors[(x + w * y) * 3];
+					color[(x + w * y)].set(*col_pointer / 255.0, *(col_pointer + 1) / 255.0, *(col_pointer + 2) / 255.0, 1.0);
 
 					if (x == 0 or y == 0)
 						continue;
