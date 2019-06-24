@@ -228,7 +228,7 @@ void ofApp::update(){
 		int index = 0;
 		for (int x=0; x<w; ++x) {
 			for (int y=0; y<h; ++y) {
-				if (depth[x + w * y] != 0 and depth[x + w * y] == depth[x + w * y]) {
+				if (depth[x + w * y] != 0) {
 
 					float* point = points[(x + w * y)].getPtr();
 					*point = -x;
