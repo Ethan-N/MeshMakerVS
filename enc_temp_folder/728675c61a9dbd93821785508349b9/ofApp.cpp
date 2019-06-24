@@ -220,7 +220,7 @@ void ofApp::update(){
 				uint16_t new_depth = 1000.0*xyz_row2;
 				
 				// Validity and Z-buffer checks
-				if (reg_depth == 0 || reg_depth > new_depth)
+				if (reg_depth == 0 )
 					reg_depth = new_depth;
 			}
 		}
@@ -244,10 +244,10 @@ void ofApp::update(){
 
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
-					int top_ind = x + w * (y - 1);
+					int bottom_ind = x + w * (y - 1);
 
 					if (abs(depth[x + w * y] - depth[diag_ind]) < threshold) {
-						//Triangle 1, Bottom Left
+						//Triangle 1, Top Left
 						if (abs(depth[x + w * y] - depth[left_ind]) < threshold and abs(depth[left_ind] - depth[diag_ind]) < threshold) {
 							faces[index] = left_ind;
 							faces[index + 1] = x + w * y;
@@ -255,10 +255,10 @@ void ofApp::update(){
 
 							index += 3;
 						}
-						//Triangle 2, Top Right
-						if (abs(depth[x + w * y] - depth[top_ind]) < threshold and abs(depth[top_ind] - depth[diag_ind]) < threshold) {
+						//Triangle 2, Bottom Right
+						if (abs(depth[x + w * y] - depth[bottom_ind]) < threshold and abs(depth[bottom_ind] - depth[diag_ind]) < threshold) {
 
-							faces[index] = top_ind;
+							faces[index] = bottom_ind;
 							faces[index + 1] = x + w * y;
 							faces[index + 2] = diag_ind;
 
