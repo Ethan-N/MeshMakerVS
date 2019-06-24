@@ -203,19 +203,22 @@ void ofApp::update(){
 					1);
 
 				// Transform to RGB camera frame
-				ofVec4f xyz_rgb = pose * xyz_depth;
-
+				//ofVec4f xyz_rgb = pose * xyz_depth;
+				float xyz_row2 = (pose.getPtr()[8]*xyz_depth.x + pose.getPtr()[9]*xyz_depth.y + pose.getPtr()[10]*xyz_depth.z + pose.getPtr()[11]*xyz_depth.w);
 				// Project to (u,v) in RGB image
-				double inv_Z = 1.0 / xyz_rgb[2];
-				int u_rgb = (rgb_fx*xyz_rgb[0] + rgb_Tx)*inv_Z + rgb_cx + 0.5;
-				int v_rgb = (rgb_fy*xyz_rgb[1] + rgb_Ty)*inv_Z + rgb_cy + 0.5;
+				double inv_Z = 1.0 / xyz_row2;
+				int u_rgb = (rgb_fx*
+					(pose.getPtr()[0]*xyz_depth.x + pose.getPtr()[1]*xyz_depth.y + pose.getPtr()[2]*xyz_depth.z + pose.getPtr()[3]*xyz_depth.w) + rgb_Tx)*inv_Z + rgb_cx + 0.5;
+				int v_rgb = (rgb_fy*
+					(pose.getPtr()[4]*xyz_depth.x + pose.getPtr()[5]*xyz_depth.y + pose.getPtr()[6]*xyz_depth.z + pose.getPtr()[7]*xyz_depth.w) + rgb_Ty)*inv_Z + rgb_cy + 0.5;
 
 				if (u_rgb < 0 || u_rgb >= 640 ||
 					v_rgb < 0 || v_rgb >= 480)
 					continue;
 
 				uint16_t& reg_depth = depth[v_rgb*lastVisibleFrame.width() + u_rgb];
-				uint16_t new_depth = 1000.0*xyz_rgb[2];
+				uint16_t new_depth = 1000.0*xyz_row2;
+				
 				// Validity and Z-buffer checks
 				if (reg_depth == 0 || reg_depth > new_depth)
 					reg_depth = new_depth;
@@ -273,14 +276,12 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofBackground(0,0,0);
-	mut.lock();
 	cam.begin();
 	ofPushMatrix();
 	//ofTranslate(300, 0, 1200);
 	ofTranslate(300,300);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	ofPopMatrix();
-	mut.unlock();
 
 	// draw the dam controller
 	ofNode n;
