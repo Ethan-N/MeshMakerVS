@@ -54,6 +54,7 @@ struct SessionDelegate : ST::CaptureSessionDelegate {
 			mut.lock();
 			lastDepthFrame = sample.depthFrame;
 			lastVisibleFrame = sample.visibleFrame;
+			mut.unlock();
 			//lastInfraredFrame = sample.infraredFrame;
 			if(!intrinsics){
 				inv_depth_fx = 1.0 / lastDepthFrame.intrinsics().fx;
@@ -63,7 +64,6 @@ struct SessionDelegate : ST::CaptureSessionDelegate {
 				rgb_cx = lastVisibleFrame.intrinsics().cx, rgb_cy = lastVisibleFrame.intrinsics().cy;
 				intrinsics = true;
 			}
-			mut.unlock();
 			break;
 		case ST::CaptureSessionSample::Type::AccelerometerEvent:
 			//printf("Accelerometer event: [% .5f % .5f % .5f]\n", sample.accelerometerEvent.acceleration().x, sample.accelerometerEvent.acceleration().y, sample.accelerometerEvent.acceleration().z);
@@ -87,12 +87,9 @@ void run() {
 	settings.structureCore.infraredEnabled = true;
 	settings.structureCore.accelerometerEnabled = true;
 	settings.structureCore.gyroscopeEnabled = true;
-	//settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::SXGA;
 	settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
 	settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_200Hz;
-	settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Short;
-	//settings.structureCore.infraredMode = ST::StructureCoreInfraredMode::LeftCameraOnly;
-
+	settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
 
 	SessionDelegate delegate;
 	ST::CaptureSession session;
@@ -132,7 +129,9 @@ void ofApp::setup(){
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	cam.lookAt(ofVec3f(0), ofVec3f(0, 1, 0));
+	cam.lookAt(ofVec3f(0), ofVec3f(1, 0, 0));
+
+	cam.disableMouseInput();
 
 	pose.makeTranslationMatrix(0.0210626, -0.000203676, -0.00250867);
 
@@ -161,13 +160,11 @@ void ofApp::update(){
 	Orientation7 camTriggerPosition = receiver.getPreviousCameraTrigger();
 	Orientation7 controller = receiver.getController();
 
-	/*
-	
 	cam.setOrientation(cor.quat);
 	ofLog() << cor.quat;
 	cam.setPosition(cor.pos*150);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
-	*/
+	
 
 	
 	if(lastDepthFrame.isValid() && lastRenderedTimestamp != lastDepthFrame.timestamp()){
@@ -180,7 +177,7 @@ void ofApp::update(){
 
 		int w = lastDepthFrame.width();
 		int h = lastDepthFrame.height();
-		float threshold = 5;
+		float threshold = 10;
 
 		uint16_t* depth = new uint16_t[2*480*640];
 				
@@ -279,8 +276,7 @@ void ofApp::draw(){
 	ofBackground(0,0,0);
 	cam.begin();
 	ofPushMatrix();
-	//ofTranslate(300, 0, 1200);
-	ofTranslate(300,300);
+	ofTranslate(1000, 300, 1500);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	ofPopMatrix();
 
