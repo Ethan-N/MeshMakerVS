@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef structure_h
 #define structure_h
 
@@ -15,22 +17,24 @@ public:
 	ST::InfraredFrame lastInfraredFrame();
 	ST::AccelerometerEvent lastAccelerometerEvent();
 	ST::GyroscopeEvent lastGyroscopeEvent();
+	
+	void startThread();
 
-	ST::CaptureSessionEventId lastCaptureSessionEvent();
+	std::mutex mut;
+
+	ST::CaptureSessionSettings Structure::getSettings();
 
 	// CaptureSession callbacks
-	void captureSessionEventDidOccur(ST::CaptureSession *, ST::CaptureSessionEventId) override;
-	void captureSessionDidOutputSample(ST::CaptureSession *, const ST::CaptureSessionSample&) override;
+	void captureSessionEventDidOccur(ST::CaptureSession *session, ST::CaptureSessionEventId event);
+	void captureSessionDidOutputSample(ST::CaptureSession *, const ST::CaptureSessionSample&);
 
 private:
-	std::atomic<ST::CaptureSessionEventId> _lastCaptureSessionEvent {ST::CaptureSessionEventId::Disconnected};
-
+	
 	ST::DepthFrame _lastDepthFrame;
 	ST::ColorFrame _lastVisibleFrame;
 	ST::InfraredFrame _lastInfraredFrame;
 	ST::AccelerometerEvent _lastAccelerometerEvent;
 	ST::GyroscopeEvent _lastGyroscopeEvent;
-	std::mutex mut;
 };
 
 #endif /* structure_h */

@@ -2,34 +2,49 @@
 #include <ST/CaptureSession.h>
 
 	void Structure::captureSessionEventDidOccur(ST::CaptureSession *session, ST::CaptureSessionEventId event) {
-		_lastCaptureSessionEvent.store(event);
+		printf("Received capture session event %d (%s)\n", (int)event, ST::CaptureSessionSample::toString(event));
+		switch (event) {
+		case ST::CaptureSessionEventId::Booting: break;
+		case ST::CaptureSessionEventId::Ready:
+			printf("Starting streams...\n");
+			session->startStreaming();
+			break;
+		case ST::CaptureSessionEventId::Disconnected:
+		case ST::CaptureSessionEventId::Error:
+			printf("Capture session error\n");
+			break;
+		default:
+			printf("Capture session event unhandled\n");
+		}
 	}
 
 	void Structure::captureSessionDidOutputSample(ST::CaptureSession *, const ST::CaptureSessionSample& sample) {
 		std::unique_lock<std::mutex> u(mut);
-		// Depth/visible/infrared frames can arrive individually or as part of a SynchronizedFrames sample
-		
-		if (sample.depthFrame.isValid()) {
+		switch (sample.type) {
+		case ST::CaptureSessionSample::Type::DepthFrame:
 			_lastDepthFrame = sample.depthFrame;
-		}
-		if (sample.visibleFrame.isValid()) {
+			break;
+		case ST::CaptureSessionSample::Type::VisibleFrame:
 			_lastVisibleFrame = sample.visibleFrame;
-		}
-		if (sample.infraredFrame.isValid()) {
+			break;
+		case ST::CaptureSessionSample::Type::InfraredFrame:
 			_lastInfraredFrame = sample.infraredFrame;
-		}
-		if (sample.type == ST::CaptureSessionSample::Type::AccelerometerEvent) {
+			break;
+		case ST::CaptureSessionSample::Type::SynchronizedFrames:
+			_lastDepthFrame = sample.depthFrame;
+			_lastVisibleFrame = sample.visibleFrame;
+			//_lastInfraredFrame = sample.infraredFrame;
+			break;
+		case ST::CaptureSessionSample::Type::AccelerometerEvent:
 			_lastAccelerometerEvent = sample.accelerometerEvent;
-		}
-		if (sample.type == ST::CaptureSessionSample::Type::GyroscopeEvent) {
+			break;
+		case ST::CaptureSessionSample::Type::GyroscopeEvent:
 			_lastGyroscopeEvent = sample.gyroscopeEvent;
+			break;
+		default:
+			printf("Sample type unhandled\n");
 		}
-		mut.unlock();
-	}
-
-	ST::CaptureSessionEventId Structure::lastCaptureSessionEvent() {
-		return _lastCaptureSessionEvent.load();
-	}
+	};
 
 	ST::DepthFrame Structure::lastDepthFrame() {
 		std::unique_lock<std::mutex> u(mut);
@@ -55,6 +70,45 @@
 		std::unique_lock<std::mutex> u(mut);
 		return _lastGyroscopeEvent;
 	}
+
+
+	void run(Structure* st) {
+		ST::CaptureSession session;
+		session.setDelegate(st);
+		if (!session.startMonitoring(st->getSettings())) {
+			printf("Failed to initialize capture session!\n");
+			exit(1);
+		}
+
+		/* Loop forever. The SessionDelegate receives samples on a background thread
+		while streaming. */
+		while (true) {
+			ofSleepMillis(1000);
+		}
+	};
+
+	void Structure::startThread(){
+		std::thread t(run, this);
+		t.detach();
+	}
+
+
+	ST::CaptureSessionSettings Structure::getSettings() {
+		ST::CaptureSessionSettings settings;
+		settings.source = ST::CaptureSessionSourceId::StructureCore;
+		settings.structureCore.depthEnabled = true;
+		settings.structureCore.visibleEnabled = true;
+		settings.structureCore.infraredEnabled = true;
+		settings.structureCore.accelerometerEnabled = true;
+		settings.structureCore.gyroscopeEnabled = true;
+		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
+		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_200Hz;
+		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
+
+		return settings;
+	}
+
+
 
 	Structure::~Structure() {
 		ofLog() << "Waiting to stop...";

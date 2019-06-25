@@ -208,6 +208,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\receiver.cpp" />
+    <ClCompile Include="src\structure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxOsc\src\ofxOsc.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="src\msgDelay.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\receiver.h" />
+    <ClInclude Include="src\structure.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="$(OF_ROOT)\libs\openFrameworksCompiled\project\vs\openframeworksLib.vcxproj">
