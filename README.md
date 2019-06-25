@@ -1,5 +1,5 @@
 # MeshMakerVS
-Uses OpenFrameworks to create a mesh using Structure Core Depth and RGB Data. Will be used for occlusion for AR. Also takes in OSC input from Vive Controller to move the camera around.
+Uses OpenFrameworks to create a mesh using Structure Core Depth and RGB Data. Will be used for occlusion for AR. Also takes in OSC input from Vive Controller to move the camera around. May need to tweak ofTranslate in order to get mesh in frame.
 
 To Get Structure Core working with Visual Studio and OpenFrameworks:
 
