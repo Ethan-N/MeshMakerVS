@@ -122,8 +122,8 @@ void ofApp::update(){
 				if (depth[x + w * y] != 0) {
 
 					float* point = points[(x + w * y)].getPtr();
-					*point = -x;
-					*(point+1) = -y;
+					*point = x;
+					*(point+1) = y;
 					*(point+2) = -depth[x + w * y];
 
 					uint8_t* col_pointer = &colors[(x + w * y) * 3];
@@ -169,7 +169,9 @@ void ofApp::draw(){
 	ofSetColor(255, 255, 255);
 	sphere.setPosition(300, 300, 0);
 	sphere.draw();
-	cameraRGB.draw(600, 600, -400);
+	glDepthMask(GL_FALSE);  
+	cameraRGB.draw(500, 500, -600);
+	glDepthMask(GL_TRUE);  
 	ofTranslate(500, 500, 0);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
