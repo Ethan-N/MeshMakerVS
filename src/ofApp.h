@@ -35,7 +35,7 @@ public:
 
 	bool intrinsics;
     
-    ofTexture myDepthTexture;
+    ofTexture cameraRGB;
     ofVbo vbo;
     ofEasyCam cam;
 
@@ -52,6 +52,8 @@ public:
 	ofFloatColor color[640 * 480];
 
 	vector<ofNode> nodes;
+
+	ofSpherePrimitive sphere;
 
     Receiver receiver;
     MsgDelay<Orientation7> camDelay;
