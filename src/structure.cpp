@@ -114,7 +114,6 @@
 
 	Structure::~Structure() {
 		ofLog() << "Waiting to stop...";
-		//waitForThread();
-		ofLog() << "Stopped!";
-
+		//Safely kill thread here if possible
+		std::terminate();
 	}
