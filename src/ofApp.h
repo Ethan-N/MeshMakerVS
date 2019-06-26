@@ -56,10 +56,4 @@ public:
 	ofSpherePrimitive sphere;
 
     Receiver receiver;
-    MsgDelay<Orientation7> camDelay;
-    // Caching the previous frame make it easy to get the delta
-    uint64_t previousMicroseconds = 0;
-    // This is some hacky junk for rotating the camera
-    double previousPressTime;// last time the camera was pressed
-    ofNode previousControllerAtPressTime;
 };
