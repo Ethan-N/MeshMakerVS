@@ -19,9 +19,7 @@ void ofApp::setup(){
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	cam.lookAt(ofVec3f(0), ofVec3f(1, 0, 0));
-
-	cam.disableMouseInput();
+	//cam.disableMouseInput();
 
 	pose.makeTranslationMatrix(0.0210626, -0.000203676, -0.00250867);
 
@@ -42,18 +40,14 @@ void ofApp::update(){
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
 
-
 	// Get the position of the Tracker
 	Orientation7 cor = receiver.getCamera();
 	Orientation7 camTriggerPosition = receiver.getPreviousCameraTrigger();
 	Orientation7 controller = receiver.getController();
 
 	cam.setOrientation(cor.quat);
-	ofLog() << cor.quat;
-	cam.setPosition(cor.pos*150);
+	cam.setPosition(cor.pos*200);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
-	
-	
 	
 	if(st.lastDepthFrame().isValid() && lastRenderedTimestamp != st.lastDepthFrame().timestamp()){
 		lastRenderedTimestamp = st.lastDepthFrame().timestamp();
@@ -76,10 +70,9 @@ void ofApp::update(){
 
 		uint16_t* depth = new uint16_t[2*480*640];
 				
-		int raw_index = 0;
 		for (unsigned v = 0; v < 480; ++v)
 		{
-			for (unsigned u = 0; u < 640; ++u, ++raw_index)
+			for (unsigned u = 0; u < 640; ++u)
 			{
 				float raw_depth = depth_row[u+v*640];
 				if (raw_depth!=raw_depth)
@@ -169,26 +162,29 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofBackground(0,0,0);
+	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
 	ofPushMatrix();
-	ofTranslate(1000, 300, 1500);
-	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
+		//ofTranslate(0, 0, 800);
+		for (ofNode n : nodes) {
+			ofSetColor(255, 255, 255);
+			n.draw();
+		}
 	ofPopMatrix();
-
-	// draw the dam controller
-	ofNode n;
-	Orientation7 controller = receiver.getController();
-	n.setOrientation(controller.quat);
-	n.setPosition(controller.pos);
-	n.setScale((controller.trigger + 1) * 0.001);
-	n.draw();
 
 	cam.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	ofNode n;
+	switch (key) {
+		case ' ':
+			n.setPosition(cam.getGlobalPosition());
+			n.setOrientation(cam.getGlobalOrientation());
+			nodes.push_back(n);
+			break;
+	}
 }
 
 //--------------------------------------------------------------

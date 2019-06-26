@@ -51,6 +51,8 @@ public:
 	ofVec3f points[640 * 480];
 	ofFloatColor color[640 * 480];
 
+	vector<ofNode> nodes;
+
     Receiver receiver;
     MsgDelay<Orientation7> camDelay;
     // Caching the previous frame make it easy to get the delta
