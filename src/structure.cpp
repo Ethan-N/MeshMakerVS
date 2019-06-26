@@ -104,6 +104,8 @@
 		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
 		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_200Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
+		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::OneShotPersistent;
+		//settings.structureCore.infraredMode = ST::StructureCoreInfraredMode::LeftCameraOnly;
 
 		return settings;
 	}

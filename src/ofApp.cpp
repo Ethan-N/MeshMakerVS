@@ -3,13 +3,14 @@
 
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup() {
 	lastRenderedTimestamp = 0;
 
 	ofSetFrameRate(60);
 	ofBackground(255);
 	ofSetColor(255);
 	ofEnableDepthTest();
+	//ofDisableAlphaBlending();
 
 	ofMatrix4x4 camera(0.999941, 0.0101288, 0.00390053, 0.0210626,
 		-0.0100631, 0.999813, -0.016518, -0.000203676,
@@ -19,13 +20,13 @@ void ofApp::setup(){
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	//cam.disableMouseInput();
+	cam.disableMouseInput();
 
 	pose.makeTranslationMatrix(0.0210626, -0.000203676, -0.00250867);
 
 	pose *= camera;
 
-	//cam.lookAt(ofVec3f(0), ofVec3f(0, 0, 1));
+	sphere.setRadius(20);
 
 	intrinsics = false;
 	depth_Tx = 0.0, depth_Ty = 0.0;
@@ -35,10 +36,12 @@ void ofApp::setup(){
 }
 //--------------------------------------------------------------
 void ofApp::update(){
-	
+
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
+
+	cameraRGB.loadData(colors, 640, 480, GL_RGB);
 
 	// Get the position of the Tracker
 	Orientation7 cor = receiver.getCamera();
@@ -46,30 +49,32 @@ void ofApp::update(){
 	Orientation7 controller = receiver.getController();
 
 	cam.setOrientation(cor.quat);
-	cam.setPosition(cor.pos*200);
+	cam.setPosition(cor.pos*150);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
-	
+
+
+
 	if(st.lastDepthFrame().isValid() && lastRenderedTimestamp != st.lastDepthFrame().timestamp()){
 		lastRenderedTimestamp = st.lastDepthFrame().timestamp();
 
 		if(!intrinsics){
-		inv_depth_fx = 1.0 / st.lastDepthFrame().intrinsics().fx;
-		inv_depth_fy = 1.0 / st.lastDepthFrame().intrinsics().fy;
-		depth_cx = st.lastDepthFrame().intrinsics().cx, depth_cy = st.lastDepthFrame().intrinsics().cy;
-		rgb_fx = st.lastVisibleFrame().intrinsics().fx, rgb_fy = st.lastVisibleFrame().intrinsics().fy;
-		rgb_cx = st.lastVisibleFrame().intrinsics().cx, rgb_cy = st.lastVisibleFrame().intrinsics().cy;
-		intrinsics = true;
+			inv_depth_fx = 1.0 / st.lastDepthFrame().intrinsics().fx;
+			inv_depth_fy = 1.0 / st.lastDepthFrame().intrinsics().fy;
+			depth_cx = st.lastDepthFrame().intrinsics().cx, depth_cy = st.lastDepthFrame().intrinsics().cy;
+			rgb_fx = st.lastVisibleFrame().intrinsics().fx, rgb_fy = st.lastVisibleFrame().intrinsics().fy;
+			rgb_cx = st.lastVisibleFrame().intrinsics().cx, rgb_cy = st.lastVisibleFrame().intrinsics().cy;
+			intrinsics = true;
 		}
 
 		memcpy(depth_row, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*640*480);
 		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
-		
+
 		int w = st.lastDepthFrame().width();
 		int h = st.lastDepthFrame().height();
 		float threshold = 10;
 
 		uint16_t* depth = new uint16_t[2*480*640];
-				
+
 		for (unsigned v = 0; v < 480; ++v)
 		{
 			for (unsigned u = 0; u < 640; ++u)
@@ -103,13 +108,13 @@ void ofApp::update(){
 
 				uint16_t& reg_depth = depth[v_rgb*w + u_rgb];
 				uint16_t new_depth = 1000.0*xyz_row2;
-				
+
 				// Validity and Z-buffer checks
 				if (reg_depth == 0 || reg_depth > new_depth)
 					reg_depth = new_depth;
 			}
 		}
-		
+
 
 		int index = 0;
 		for (int x=0; x<w; ++x) {
@@ -158,10 +163,14 @@ void ofApp::update(){
 		vbo.setIndexData( &faces[0], index, GL_DYNAMIC_DRAW );
 	}
 }
-
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofBackground(0,0,0);
+	ofSetColor(255, 255, 255);
+	sphere.setPosition(300, 300, 0);
+	sphere.draw();
+	cameraRGB.draw(300, 300, -400);
+	ofTranslate(100, 100, 0);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
 	ofPushMatrix();
