@@ -169,8 +169,8 @@ void ofApp::draw(){
 	ofSetColor(255, 255, 255);
 	sphere.setPosition(300, 300, 0);
 	sphere.draw();
-	cameraRGB.draw(300, 300, -400);
-	ofTranslate(100, 100, 0);
+	cameraRGB.draw(600, 600, -400);
+	ofTranslate(500, 500, 0);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
 	ofPushMatrix();

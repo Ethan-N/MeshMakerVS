@@ -98,13 +98,13 @@
 		settings.source = ST::CaptureSessionSourceId::StructureCore;
 		settings.structureCore.depthEnabled = true;
 		settings.structureCore.visibleEnabled = true;
-		settings.structureCore.infraredEnabled = true;
-		settings.structureCore.accelerometerEnabled = true;
-		settings.structureCore.gyroscopeEnabled = true;
+		settings.structureCore.infraredEnabled = false;
+		settings.structureCore.accelerometerEnabled = false;
+		settings.structureCore.gyroscopeEnabled = false;
 		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
-		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_200Hz;
+		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_100Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
-		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::OneShotPersistent;
+		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::ContinuousNonPersistent;
 		//settings.structureCore.infraredMode = ST::StructureCoreInfraredMode::LeftCameraOnly;
 
 		return settings;
