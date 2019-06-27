@@ -6,7 +6,6 @@
 #include "msgDelay.h"
 #include "structure.h"
 
-
 class ofApp : public ofBaseApp{
     
 public:
@@ -43,6 +42,8 @@ public:
 
 	double lastRenderedTimestamp;
 	ofMatrix4x4 pose;
+
+	uint16_t depth[480*640];
     
 	float depth_row[640 * 480];
 	uint8_t colors[640 * 480 * 3];
@@ -52,8 +53,5 @@ public:
 	ofFloatColor color[640 * 480];
 
 	vector<ofNode> nodes;
-
-	ofSpherePrimitive sphere;
-
     Receiver receiver;
 };

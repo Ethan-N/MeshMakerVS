@@ -26,7 +26,9 @@ void ofApp::setup() {
 
 	pose *= camera;
 
-	sphere.setRadius(20);
+	cam.setFov(40.); // this is overwritten by the osc receiver
+	cam.setNearClip(0.05);
+	cam.setFarClip(30);
 
 	intrinsics = false;
 	depth_Tx = 0.0, depth_Ty = 0.0;
@@ -49,7 +51,7 @@ void ofApp::update(){
 	Orientation7 controller = receiver.getController();
 
 	cam.setOrientation(cor.quat);
-	cam.setPosition(cor.pos*150);
+	cam.setPosition(cor.pos);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
 
 
@@ -71,10 +73,9 @@ void ofApp::update(){
 
 		int w = st.lastDepthFrame().width();
 		int h = st.lastDepthFrame().height();
-		float threshold = 10;
+		float threshold = 100;
 
-		uint16_t* depth = new uint16_t[2*480*640];
-
+		
 		for (unsigned v = 0; v < 480; ++v)
 		{
 			for (unsigned u = 0; u < 640; ++u)
@@ -122,12 +123,12 @@ void ofApp::update(){
 				if (depth[x + w * y] != 0) {
 
 					float* point = points[(x + w * y)].getPtr();
-					*point = x;
-					*(point+1) = y;
-					*(point+2) = -depth[x + w * y];
+					*point = x*2;
+					*(point+1) = y*2;
+					*(point+2) = -depth[x + w * y]/1000.0;
 
 					uint8_t* col_pointer = &colors[(x + w * y) * 3];
-					color[(x + w * y)].set(*col_pointer / 255.0, *(col_pointer + 1) / 255.0, *(col_pointer + 2) / 255.0, 1.0);
+					color[(x + w * y)].set(*col_pointer / 1000.0, *(col_pointer + 1) / 1000.0, *(col_pointer + 2) / 1000.0, 1.0);
 
 					if (x == 0 or y == 0)
 						continue;
@@ -139,18 +140,18 @@ void ofApp::update(){
 					if (abs(depth[x + w * y] - depth[diag_ind]) < threshold) {
 						//Triangle 1, Bottom Left
 						if (abs(depth[x + w * y] - depth[left_ind]) < threshold and abs(depth[left_ind] - depth[diag_ind]) < threshold) {
-							faces[index] = left_ind;
+							faces[index] = diag_ind;
 							faces[index + 1] = x + w * y;
-							faces[index + 2] = diag_ind;
+							faces[index + 2] = left_ind;
 
 							index += 3;
 						}
 						//Triangle 2, Top Right
 						if (abs(depth[x + w * y] - depth[top_ind]) < threshold and abs(depth[top_ind] - depth[diag_ind]) < threshold) {
 
-							faces[index] = top_ind;
+							faces[index] = diag_ind;
 							faces[index + 1] = x + w * y;
-							faces[index + 2] = diag_ind;
+							faces[index + 2] = top_ind;
 
 							index += 3;
 						}
@@ -161,22 +162,18 @@ void ofApp::update(){
 		vbo.setVertexData( &points[0], 640*480, GL_DYNAMIC_DRAW );
 		vbo.setColorData( &color[0], 640*480, GL_DYNAMIC_DRAW );
 		vbo.setIndexData( &faces[0], index, GL_DYNAMIC_DRAW );
+		std::fill(depth, depth+480*640, 0);
 	}
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofBackground(0,0,0);
-	ofSetColor(255, 255, 255);
-	sphere.setPosition(300, 300, 0);
-	sphere.draw();
 	glDepthMask(GL_FALSE);  
-	cameraRGB.draw(500, 500, -600);
-	glDepthMask(GL_TRUE);  
-	ofTranslate(500, 500, 0);
+	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
+	glDepthMask(GL_TRUE); 
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
 	ofPushMatrix();
-		//ofTranslate(0, 0, 800);
 		for (ofNode n : nodes) {
 			ofSetColor(255, 255, 255);
 			n.draw();
@@ -191,9 +188,10 @@ void ofApp::keyPressed(int key){
 	ofNode n;
 	switch (key) {
 		case ' ':
+			n.setScale(.01);
 			n.setPosition(cam.getGlobalPosition());
 			n.setOrientation(cam.getGlobalOrientation());
-			nodes.push_back(n);
+			nodes.push_back(n); 
 			break;
 	}
 }

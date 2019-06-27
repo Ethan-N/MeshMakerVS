@@ -105,15 +105,7 @@
 		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_100Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
 		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::ContinuousNonPersistent;
-		//settings.structureCore.infraredMode = ST::StructureCoreInfraredMode::LeftCameraOnly;
+		settings.applyExpensiveCorrection = true;
 
 		return settings;
-	}
-
-
-
-	Structure::~Structure() {
-		ofLog() << "Waiting to stop...";
-		//Safely kill thread here if possible
-		std::terminate();
 	}

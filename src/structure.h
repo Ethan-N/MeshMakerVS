@@ -9,7 +9,6 @@
 
 class Structure : public ST::CaptureSessionDelegate  {
 public:
-	~Structure();
 
 	// Thread-safe accessors for the stored CaptureSession samples
 	ST::DepthFrame lastDepthFrame();
