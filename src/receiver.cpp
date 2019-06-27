@@ -33,9 +33,9 @@ void Receiver::threadedFunction() {
                 // When I switched to using the openvr script to get the quaternion
                 // these messed things up (made the FOV look up twoard the sky when
                 // mounted on the flash shoe)
-                static const ofQuaternion r1 = ofQuaternion(90, ofVec3f(1, 0, 0));
-                static const ofQuaternion r2 = ofQuaternion(180, ofVec3f(0, 1, 0));
-                quat = r1 * r2 * quat; // rotate quat by r2 and then by r1  (I think)
+                //static const ofQuaternion r1 = ofQuaternion(90, ofVec3f(1, 0, 0));
+                //static const ofQuaternion r2 = ofQuaternion(180, ofVec3f(0, 1, 0));
+                //quat = r1 * r2 * quat; // rotate quat by r2 and then by r1  (I think)
                 
                 // rotate down slightly to make it easier to point the controller
                 //static const ofQuaternion rController = ofQuaternion(-45, ofVec3f(1, 0, 0));
