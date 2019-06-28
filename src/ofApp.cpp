@@ -12,6 +12,9 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 	//ofDisableAlphaBlending();
 
+	pos_node.setParent(cam, true);
+	pos_node.setPosition(cam.getX()+.06, cam.getY(), cam.getZ());
+
 	ofMatrix4x4 camera(0.999941, 0.0101288, 0.00390053, 0.0210626,
 		-0.0100631, 0.999813, -0.016518, -0.000203676,
 		-0.00406711, 0.0164778, 0.999856, -0.00250867,
@@ -26,7 +29,7 @@ void ofApp::setup() {
 
 	pose *= camera;
 
-	cam.setFov(40.); // this is overwritten by the osc receiver
+	cam.setFov(70.); // this is overwritten by the osc receiver
 	cam.setNearClip(0.05);
 	cam.setFarClip(30);
 
@@ -117,15 +120,15 @@ void ofApp::update(){
 		}
 
 
+		ofVec3f pos = pos_node.getGlobalPosition();
 		int index = 0;
 		for (int x=0; x<w; ++x) {
 			for (int y=0; y<h; ++y) {
 				if (depth[x + w * y] != 0) {
-
 					float* point = points[(x + w * y)].getPtr();
-					*point = x*2;
-					*(point+1) = y*2;
-					*(point+2) = -depth[x + w * y]/1000.0;
+					*point = pos[0]+(x*2.0-640)/500.0;
+					*(point+1) = pos[1]-(y*2.0-480)/500.0;
+					*(point+2) = pos[2]-depth[x + w * y]/1000.0;
 
 					uint8_t* col_pointer = &colors[(x + w * y) * 3];
 					color[(x + w * y)].set(*col_pointer / 1000.0, *(col_pointer + 1) / 1000.0, *(col_pointer + 2) / 1000.0, 1.0);
@@ -171,14 +174,12 @@ void ofApp::draw(){
 	glDepthMask(GL_FALSE);  
 	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
 	glDepthMask(GL_TRUE); 
-	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 	cam.begin();
-	ofPushMatrix();
+	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
 		for (ofNode n : nodes) {
 			ofSetColor(255, 255, 255);
 			n.draw();
 		}
-	ofPopMatrix();
 
 	cam.end();
 }

@@ -52,6 +52,8 @@ public:
 	ofVec3f points[640 * 480];
 	ofFloatColor color[640 * 480];
 
+	ofNode pos_node;
+
 	vector<ofNode> nodes;
     Receiver receiver;
 };

@@ -105,7 +105,7 @@
 		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_100Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
 		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::ContinuousNonPersistent;
-		settings.applyExpensiveCorrection = true;
+		//settings.applyExpensiveCorrection = true;
 
 		return settings;
 	}
