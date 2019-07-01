@@ -14,28 +14,15 @@ void ofApp::setup() {
 
 	pos_node.setParent(cam, true);
 	pos_node.setPosition(cam.getX()+.06, cam.getY(), cam.getZ());
-
-	ofMatrix4x4 camera(0.999941, 0.0101288, 0.00390053, 0.0210626,
-		-0.0100631, 0.999813, -0.016518, -0.000203676,
-		-0.00406711, 0.0164778, 0.999856, -0.00250867,
-		0, 0, 0, 1);
-
+	
 	// Threaded OSC Receive
 	receiver.startThread();
 
 	cam.disableMouseInput();
 
-	pose.makeTranslationMatrix(0.0210626, -0.000203676, -0.00250867);
-
-	pose *= camera;
-
 	cam.setFov(70.); // this is overwritten by the osc receiver
 	cam.setNearClip(0.05);
 	cam.setFarClip(30);
-
-	intrinsics = false;
-	depth_Tx = 0.0, depth_Ty = 0.0;
-	rgb_Tx = 0.0, rgb_Ty = 0.0;
 
 	st.startThread();
 }
@@ -62,66 +49,16 @@ void ofApp::update(){
 	if(st.lastDepthFrame().isValid() && lastRenderedTimestamp != st.lastDepthFrame().timestamp()){
 		lastRenderedTimestamp = st.lastDepthFrame().timestamp();
 
-		if(!intrinsics){
-			inv_depth_fx = 1.0 / st.lastDepthFrame().intrinsics().fx;
-			inv_depth_fy = 1.0 / st.lastDepthFrame().intrinsics().fy;
-			depth_cx = st.lastDepthFrame().intrinsics().cx, depth_cy = st.lastDepthFrame().intrinsics().cy;
-			rgb_fx = st.lastVisibleFrame().intrinsics().fx, rgb_fy = st.lastVisibleFrame().intrinsics().fy;
-			rgb_cx = st.lastVisibleFrame().intrinsics().cx, rgb_cy = st.lastVisibleFrame().intrinsics().cy;
-			intrinsics = true;
-		}
-
-		memcpy(depth_row, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*640*480);
-		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
-
 		int w = st.lastDepthFrame().width();
 		int h = st.lastDepthFrame().height();
-		float threshold = 100;
 
-		
-		for (unsigned v = 0; v < 480; ++v)
-		{
-			for (unsigned u = 0; u < 640; ++u)
-			{
-				float raw_depth = depth_row[u+v*640];
-				if (raw_depth!=raw_depth)
-					continue;
+		st.calculateDepthTransform();
+		uint16_t* depth = st.getShiftedDepth();
 
-				double depth_val = raw_depth/1000.0;
-
-				/// @todo Combine all operations into one matrix multiply on (u,v,d)
-				// Reproject (u,v,Z) to (X,Y,Z,1) in depth camera frame
-				ofVec4f xyz_depth(((u - depth_cx)*depth_val - depth_Tx) * inv_depth_fx,
-					((v - depth_cy)*depth_val - depth_Ty) * inv_depth_fy,
-					depth_val,
-					1);
-
-				// Transform to RGB camera frame
-				//ofVec4f xyz_rgb = pose * xyz_depth;
-				float xyz_row2 = (pose.getPtr()[8]*xyz_depth.x + pose.getPtr()[9]*xyz_depth.y + pose.getPtr()[10]*xyz_depth.z + pose.getPtr()[11]*xyz_depth.w);
-				// Project to (u,v) in RGB image
-				double inv_Z = 1.0 / xyz_row2;
-				int u_rgb = (rgb_fx*
-					(pose.getPtr()[0]*xyz_depth.x + pose.getPtr()[1]*xyz_depth.y + pose.getPtr()[2]*xyz_depth.z + pose.getPtr()[3]*xyz_depth.w) + rgb_Tx)*inv_Z + rgb_cx + 0.5;
-				int v_rgb = (rgb_fy*
-					(pose.getPtr()[4]*xyz_depth.x + pose.getPtr()[5]*xyz_depth.y + pose.getPtr()[6]*xyz_depth.z + pose.getPtr()[7]*xyz_depth.w) + rgb_Ty)*inv_Z + rgb_cy + 0.5;
-
-				if (u_rgb < 0 || u_rgb >= 640 ||
-					v_rgb < 0 || v_rgb >= 480)
-					continue;
-
-				uint16_t& reg_depth = depth[v_rgb*w + u_rgb];
-				uint16_t new_depth = 1000.0*xyz_row2;
-
-				// Validity and Z-buffer checks
-				if (reg_depth == 0 || reg_depth > new_depth)
-					reg_depth = new_depth;
-			}
-		}
-
-
+		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
 		ofVec3f pos = pos_node.getGlobalPosition();
 		int index = 0;
+		float threshold = 100;
 		for (int x=0; x<w; ++x) {
 			for (int y=0; y<h; ++y) {
 				if (depth[x + w * y] != 0) {

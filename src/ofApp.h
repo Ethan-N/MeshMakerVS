@@ -25,15 +25,6 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
-	double inv_depth_fx, inv_depth_fy;
-	double depth_cx, depth_cy;
-	double depth_Tx, depth_Ty;
-	double rgb_fx, rgb_fy;
-	double rgb_cx, rgb_cy;
-	double rgb_Tx, rgb_Ty;
-
-	bool intrinsics;
-    
     ofTexture cameraRGB;
     ofVbo vbo;
     ofEasyCam cam;
@@ -41,11 +32,7 @@ public:
 	Structure st;
 
 	double lastRenderedTimestamp;
-	ofMatrix4x4 pose;
-
-	uint16_t depth[480*640];
     
-	float depth_row[640 * 480];
 	uint8_t colors[640 * 480 * 3];
 
 	ofIndexType faces[640 * 480 * 6];
