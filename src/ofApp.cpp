@@ -13,7 +13,7 @@ void ofApp::setup() {
 	//ofDisableAlphaBlending();
 
 	pos_node.setParent(cam, true);
-	pos_node.setPosition(cam.getX()+1.2, cam.getY()-.7, cam.getZ());
+	pos_node.setPosition(cam.getX()+1.15, cam.getY()-.7, cam.getZ());
 	pos_node.rotateDeg(180.0, ofVec3f(0, 0, 1));
 	pos_node.rotateDeg(180.0, ofVec3f(0, 1, 0));
 	
@@ -24,7 +24,7 @@ void ofApp::setup() {
 
 	cam.setFov(70.); // this is overwritten by the osc receiver
 	cam.setNearClip(0.001);
-	cam.setFarClip(30);
+	cam.setFarClip(10);
 
 	st.startThread();
 }
@@ -34,8 +34,6 @@ void ofApp::update(){
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
-
-	cameraRGB.loadData(colors, 640, 480, GL_RGB);
 
 	// Get the position of the Tracker
 	Orientation7 cor = receiver.getCamera();
@@ -54,30 +52,19 @@ void ofApp::update(){
 		int w = st.lastDepthFrame().width();
 		int h = st.lastDepthFrame().height();
 
+		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
+		cameraRGB.loadData(colors, 640, 480, GL_RGB);
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*640*480);
 
-		//st.calculateDepthTransform();
-		//uint16_t* depth = st.getShiftedDepth();
-
-		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
-		glm::mat4 transform = pos_node.getGlobalTransformMatrix();
-		//ofVec3f pos = pos_node.getGlobalPosition();
 		int index = 0;
 		float threshold = 10;
 		for (int x=0; x<w; ++x) {
 			for (int y=0; y<h; ++y) {
 				if (depth[x + w * y] != 0 && depth[x + w * y]==depth[x + w * y]) {
 					float* point = points[(x + w * y)].getPtr();
-					glm::vec4 pos((x - 640) / 350.0, (y - 480) / 350.0, depth[x + w * y] / 1000., 1);
-					glm::vec4 result = transform * pos;
-					*point = result[0];
-					*(point+1) = result[1];
-					*(point + 2) = result[2];
-					//*(point+2) = pos[2]-depth[x + w * y]/1000.0;
-
-
-					//uint8_t* col_pointer = &colors[(x + w * y) * 3];
-					//color[(x + w * y)].set(*col_pointer / 1000.0, *(col_pointer + 1) / 1000.0, *(col_pointer + 2) / 1000.0, 1.0);
+					*point = (x - 640) / 350.0;
+					*(point+1) = (y - 480) / 350.0;
+					*(point + 2) = depth[x + w * y] / 1000.;
 
 					if (x == 0 or y == 0)
 						continue;
@@ -108,9 +95,8 @@ void ofApp::update(){
 				}
 			}
 		}
-		vbo.setVertexData( &points[0], w*h, GL_DYNAMIC_DRAW );
-		//vbo.setColorData( &color[0], 640*480, GL_DYNAMIC_DRAW );
-		vbo.setIndexData( &faces[0], index, GL_DYNAMIC_DRAW );
+		vbo.setVertexData(&points[0], w*h, GL_DYNAMIC_DRAW );
+		vbo.setIndexData(&faces[0], index, GL_DYNAMIC_DRAW );
 		std::fill(depth, depth+w*h, 0);
 	}
 }
@@ -121,8 +107,11 @@ void ofApp::draw(){
 	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
 	glDepthMask(GL_TRUE); 
 	cam.begin();
-	//pos_node.draw();
+	pos_node.transformGL();
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	pos_node.restoreTransformGL();
 		for (ofNode n : nodes) {
 			ofSetColor(255, 0, 255);
 			n.draw();
