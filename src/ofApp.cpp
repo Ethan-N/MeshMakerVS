@@ -21,6 +21,7 @@ void ofApp::setup() {
 	receiver.startThread();
 
 	//cam.disableMouseInput();
+	tracker.setScale(.01);
 
 	cam.setFov(70.); // this is overwritten by the osc receiver
 	cam.setNearClip(0.001);
@@ -44,6 +45,8 @@ void ofApp::update(){
 	cam.setPosition(cor.pos);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
 
+	tracker.setOrientation(controller.quat);
+	tracker.setPosition(controller.pos);
 
 
 	if(st.lastDepthFrame().isValid() && lastRenderedTimestamp != st.lastDepthFrame().timestamp()){
@@ -102,7 +105,6 @@ void ofApp::update(){
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofSetColor(255, 255, 255);
 	glDepthMask(GL_FALSE);  
 	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
 	glDepthMask(GL_TRUE); 
@@ -116,6 +118,8 @@ void ofApp::draw(){
 			ofSetColor(255, 0, 255);
 			n.draw();
 		}
+	ofSetColor(255,255,255);
+	tracker.draw();
 
 	cam.end();
 }

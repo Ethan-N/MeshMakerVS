@@ -14,7 +14,7 @@ void Receiver::threadedFunction() {
             ofxOscMessage m;
             oscReceiver.getNextMessage(m);
             auto addr = m.getAddress();
-            if (addr == "/tracker/0" || addr == "/controller/1") {
+            if (addr == "/tracker") {
                 lock();
                 // Convert the message to 3d vector and a quaternion
                 ofVec3f pos = ofVec3f(m.getArgAsFloat(0) * scale,
@@ -33,9 +33,9 @@ void Receiver::threadedFunction() {
                 // When I switched to using the openvr script to get the quaternion
                 // these messed things up (made the FOV look up twoard the sky when
                 // mounted on the flash shoe)
-                //static const ofQuaternion r1 = ofQuaternion(90, ofVec3f(1, 0, 0));
-                //static const ofQuaternion r2 = ofQuaternion(180, ofVec3f(0, 1, 0));
-                //quat = r1 * r2 * quat; // rotate quat by r2 and then by r1  (I think)
+                static const ofQuaternion r1 = ofQuaternion(90, ofVec3f(1, 0, 0));
+                static const ofQuaternion r2 = ofQuaternion(180, ofVec3f(0, 1, 0));
+                quat = r1 * r2 * quat; // rotate quat by r2 and then by r1  (I think)
                 
                 // rotate down slightly to make it easier to point the controller
                 //static const ofQuaternion rController = ofQuaternion(-45, ofVec3f(1, 0, 0));
@@ -50,12 +50,12 @@ void Receiver::threadedFunction() {
                 Orientation7 result;
                 result.pos = camera.getGlobalPosition();
                 result.quat = camera.getGlobalOrientation();
-                result.trigger = m.getArgAsFloat(7);
+                //result.trigger = m.getArgAsFloat(7);
                 
                 double time = static_cast<double>(ofGetElapsedTimeMicros() * 0.000001);
                 cameraMessages.add(time, result);
                 unlock();
-            } else if (addr == "/controller/0") {
+            } else if (addr == "/controller") {
                 lock();
                 ofVec3f pos = ofVec3f(m.getArgAsFloat(0) * scale,
                                       m.getArgAsFloat(1) * scale,
@@ -74,7 +74,7 @@ void Receiver::threadedFunction() {
                 
                 controllerState.pos = pointer.getGlobalPosition();
                 controllerState.quat = pointer.getGlobalOrientation();
-                controllerState.trigger = m.getArgAsFloat(7);
+                //controllerState.trigger = m.getArgAsFloat(7);
                 unlock();
             } else if (addr == "/fov") {
                 lock();

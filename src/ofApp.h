@@ -41,6 +41,7 @@ public:
 	float depth[1280 * 960];
 
 	ofNode pos_node;
+	ofNode tracker;
 
 	vector<ofNode> nodes;
     Receiver receiver;
