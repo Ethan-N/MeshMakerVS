@@ -27,7 +27,7 @@ public:
 
     ofTexture cameraRGB;
     ofVbo vbo;
-    ofEasyCam cam;
+    ofCamera cam;
 
 	Structure st;
 
@@ -40,8 +40,10 @@ public:
 	ofFloatColor color[640 * 480];
 	float depth[1280 * 960];
 
-	ofNode pos_node;
-	ofNode tracker;
+	ofCamera depth_cam;
+	ofCamera rgb_cam;
+
+	ofNode controller;
 
 	vector<ofNode> nodes;
     Receiver receiver;

@@ -12,20 +12,31 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 	//ofDisableAlphaBlending();
 
-	pos_node.setParent(cam, true);
-	pos_node.setPosition(cam.getX()+1.15, cam.getY()-.7, cam.getZ());
-	pos_node.rotateDeg(180.0, ofVec3f(0, 0, 1));
-	pos_node.rotateDeg(180.0, ofVec3f(0, 1, 0));
+	cam.setFov(70.); // this is overwritten by the osc receiver
+	cam.setNearClip(.1);
+	cam.setFarClip(30);
+
+	rgb_cam.setFov(70.); // this is overwritten by the osc receiver
+	rgb_cam.setNearClip(.1);
+	rgb_cam.setFarClip(30);
 	
+	rgb_cam.setParent(cam, true);
+	rgb_cam.setPosition(cam.getX()+.01, cam.getY(), cam.getZ());
+
+	depth_cam.setFov(70.); // this is overwritten by the osc receiver
+	depth_cam.setNearClip(.1);
+	depth_cam.setFarClip(30);
+
+	depth_cam.setParent(cam, true);
+	depth_cam.setPosition(cam.getX()+.005, cam.getY(), cam.getZ());
+
 	// Threaded OSC Receive
 	receiver.startThread();
 
 	//cam.disableMouseInput();
-	tracker.setScale(.01);
+	controller.setScale(.01);
 
-	cam.setFov(70.); // this is overwritten by the osc receiver
-	cam.setNearClip(0.001);
-	cam.setFarClip(10);
+	
 
 	st.startThread();
 }
@@ -38,15 +49,15 @@ void ofApp::update(){
 
 	// Get the position of the Tracker
 	Orientation7 cor = receiver.getCamera();
-	Orientation7 camTriggerPosition = receiver.getPreviousCameraTrigger();
-	Orientation7 controller = receiver.getController();
 
 	cam.setOrientation(cor.quat);
 	cam.setPosition(cor.pos);
 	cam.setFov(receiver.getFov()); // Can also set this in the main view
 
-	tracker.setOrientation(controller.quat);
-	tracker.setPosition(controller.pos);
+
+	Orientation7 control = receiver.getController();
+	controller.setOrientation(control.quat);
+	controller.setPosition(control.pos);
 
 
 	if(st.lastDepthFrame().isValid() && lastRenderedTimestamp != st.lastDepthFrame().timestamp()){
@@ -60,17 +71,17 @@ void ofApp::update(){
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*640*480);
 
 		int index = 0;
-		float threshold = 10;
+		float threshold = 1.5;
+		ofRectangle view(0, 0, ofGetWidth(), ofGetHeight());
 		for (int x=0; x<w; ++x) {
 			for (int y=0; y<h; ++y) {
 				if (depth[x + w * y] != 0 && depth[x + w * y]==depth[x + w * y]) {
-					float* point = points[(x + w * y)].getPtr();
-					*point = (x - 640) / 350.0;
-					*(point+1) = (y - 480) / 350.0;
-					*(point + 2) = depth[x + w * y] / 1000.;
-
-					if (x == 0 or y == 0)
-						continue;
+					//float* point = points[(x + w * y)].getPtr();
+					//*point = x*2;
+					//*(point+1) = y*2;
+					//*(point+2) = -depth[x + w * y]/1000.0;
+					ofVec3f screen_point(x*2, y*2, depth[x + w * y] / 1000.);
+					points[(x + w * y)] = depth_cam.screenToWorld(screen_point, view);
 
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
@@ -105,21 +116,22 @@ void ofApp::update(){
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
+	ofBackground(255, 255, 255);
 	glDepthMask(GL_FALSE);  
+	ofSetColor(255,255,255);
 	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
 	glDepthMask(GL_TRUE); 
 	cam.begin();
-	pos_node.transformGL();
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_TRIANGLES, sizeof(faces));
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	pos_node.restoreTransformGL();
+	ofSetColor(255, 0, 255);
+	//rgb_cam.transformGL();
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//rgb_cam.restoreTransformGL();
 		for (ofNode n : nodes) {
-			ofSetColor(255, 0, 255);
 			n.draw();
 		}
-	ofSetColor(255,255,255);
-	tracker.draw();
+	controller.draw();
 
 	cam.end();
 }
@@ -130,8 +142,8 @@ void ofApp::keyPressed(int key){
 	switch (key) {
 		case ' ':
 			n.setScale(.01);
-			n.setPosition(cam.getGlobalPosition());
-			n.setOrientation(cam.getGlobalOrientation());
+			n.setPosition(controller.getGlobalPosition());
+			n.setOrientation(controller.getGlobalOrientation());
 			nodes.push_back(n); 
 			break;
 	}
