@@ -177,8 +177,8 @@
 		settings.structureCore.infraredEnabled = false;
 		settings.structureCore.accelerometerEnabled = false;
 		settings.structureCore.gyroscopeEnabled = false;
-		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
-		//settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::SXGA;
+		//settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::VGA;
+		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::SXGA;
 		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_100Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
 		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::ContinuousNonPersistent;

@@ -26,12 +26,13 @@ public:
     void gotMessage(ofMessage msg);
 
     ofTexture cameraRGB;
+	ofTexture cameraDepth;
     ofVbo vbo;
     ofCamera cam;
 
-	Structure st;
+	bool flipped;
 
-	double lastRenderedTimestamp;
+	Structure st;
 
 	uint8_t colors[640 * 480 * 3];
 
@@ -39,11 +40,12 @@ public:
 	ofVec3f points[1280 * 960];
 	ofFloatColor color[640 * 480];
 	float depth[1280 * 960];
+	int index;
 
 	ofCamera depth_cam;
 	ofCamera rgb_cam;
 
-	ofNode controller;
+	ofCamera controller;
 
 	vector<ofNode> nodes;
     Receiver receiver;
