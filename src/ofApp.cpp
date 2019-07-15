@@ -9,25 +9,20 @@ void ofApp::setup() {
 	ofSetColor(255);
 	ofEnableDepthTest();
 
-	cam.setFov(85.); // this is overwritten by the osc receiver
-	cam.setNearClip(.01);
-	cam.setFarClip(100);
-
-	controller.setFov(85.);
-	controller.setNearClip(.01);
-	controller.setFarClip(100);
-
-	depth_cam.setFov(45.); // this is overwritten by the osc receiver
-	depth_cam.setNearClip(.01);
-	depth_cam.setFarClip(100);
+	depth_cam.setFov(70.); 
+	depth_cam.setNearClip(.35);
+	depth_cam.setFarClip(10);
 
 	depth_cam.setParent(cam, true);
 	depth_cam.setPosition(cam.getX()+.125, cam.getY(), cam.getZ());
 
+	cam.setFov(82.5); // this is overwritten by the osc receiver
+	cam.setNearClip(.35);
+	cam.setFarClip(10);
+
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	//cam.disableMouseInput();
 	controller.setScale(.01);
 
 	st.startThread();
@@ -63,16 +58,28 @@ void ofApp::update(){
 		std::fill(depth, depth+w*h, 0);
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*w*h);
 		cameraDepth.loadData(depth, 1280, 960, GL_RED);
-		
-		float threshold = .1;
-		ofRectangle view(0, 0, ofGetWidth(), ofGetHeight());
-		for (int x=0; x<w; ++x) {
-			for (int y=0; y<h; ++y) {
+
+		float threshold = .15;
+		depth_cam.setFov(70);
+		auto inv_MVPmatrix = glm::inverse(depth_cam.getModelViewProjectionMatrix());
+		for (int y=0; y<h; ++y) {
+			for (int x=0; x<w; ++x) {
 				if (depth[x + w * y] != 0 && depth[x + w * y] == depth[x + w * y]) {
-					ofVec3f screen_point(x, y, depth[x + w * y] / 1000.);
 
-					points[x + w * y] = depth_cam.screenToWorld(screen_point, view);
+					glm::vec4 CameraXYZ;
+					CameraXYZ.x = 2.0f * x / w - 1.0f;
+					CameraXYZ.y = 1.0f - 2.0f * y / h;
+					CameraXYZ.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
+					CameraXYZ.w = 1;
 
+					auto world = inv_MVPmatrix * CameraXYZ;
+					points[x + w * y] = glm::vec3(world) / world.w;
+
+					//ofVec3f screen_point(x, y, ofNormalize(depth[x + w * y]/1000.0, .35, 10));
+					//ofVec3f mesh_point = depth_cam.screenToWorld(screen_point, view);
+					//points[x + w * y] = mesh_point;
+					
+					
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
 					int top_ind = x + w * (y - 1);
@@ -107,23 +114,21 @@ void ofApp::draw(){
 	ofBackground(255, 255, 255);
 	glDepthMask(GL_FALSE);  
 	ofSetColor(255,255,255);
-	//cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
+	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
+	ofSetColor(255,255,255,127);
+	//cameraDepth.draw(ofGetWidth()*.13, ofGetHeight()*.13, 0, ofGetWidth()*.87, ofGetHeight()*.87);
 	ofSetColor(255,255,255);
-	cameraDepth.draw(ofGetWidth()*.13, ofGetHeight()*.13, 0, ofGetWidth()*.87, ofGetHeight()*.87);
 	glDepthMask(GL_TRUE); 
-	depth_cam.begin();
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	//vbo.drawElements(GL_TRIANGLES, index);
-	depth_cam.end();
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+	depth_cam.setFov(receiver.getFov());
 	if (flipped)
 		controller.begin();
 	else
 		depth_cam.begin();
 	ofSetColor(255, 0, 255);
-		for (ofNode n : nodes) {
-			n.draw();
-		}
+	for (ofNode n : nodes) {
+		n.draw();
+	}
 	if (flipped) {
 		cam.draw();
 		ofSetColor(0, 0, 255);
@@ -134,6 +139,14 @@ void ofApp::draw(){
 		controller.draw();
 		depth_cam.end();
 	}
+	
+	ofSetColor(255, 255, 255);
+	cam.setFov(82.5); 
+	cam.begin();
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	vbo.drawElements(GL_TRIANGLES, index);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	cam.end();
 }
 
 //--------------------------------------------------------------
@@ -141,9 +154,9 @@ void ofApp::keyPressed(int key){
 	ofNode n;
 	switch (key) {
 		case ' ':
-			n.setScale(.01);
 			n.setPosition(controller.getGlobalPosition());
 			n.setOrientation(controller.getGlobalOrientation());
+			n.setScale(.01);
 			nodes.push_back(n); 
 			break;
 		case 'f':

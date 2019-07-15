@@ -30,6 +30,8 @@ public:
     ofVbo vbo;
     ofCamera cam;
 
+	ofMesh mesh;
+
 	bool flipped;
 
 	Structure st;
@@ -43,8 +45,6 @@ public:
 	int index;
 
 	ofCamera depth_cam;
-	ofCamera rgb_cam;
-
 	ofCamera controller;
 
 	vector<ofNode> nodes;
