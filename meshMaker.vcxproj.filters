@@ -162,14 +162,4 @@
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\..\..\Users\ethan\Downloads\StructureSDK-CrossPlatform-0.7.1\StructureSDK-CrossPlatform-0.7.1\Libraries\Structure\Windows\x86_64\Structure.lib">
-      <Filter>lib</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\..\Users\ethan\Downloads\StructureSDK-CrossPlatform-0.7.1\StructureSDK-CrossPlatform-0.7.1\Libraries\Structure\Windows\x86_64\Structure.dll">
-      <Filter>lib</Filter>
-    </None>
-  </ItemGroup>
 </Project>

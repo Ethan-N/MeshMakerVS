@@ -23,7 +23,7 @@ void ofApp::setup() {
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	controller.setScale(.01);
+	controller.setScale(.005);
 
 	st.startThread();
 }
@@ -39,7 +39,7 @@ void ofApp::update(){
 
 	cam.setOrientation(cor.quat);
 	cam.setPosition(cor.pos);
-	cam.setFov(receiver.getFov()); // Can also set this in the main view
+	//cam.setFov(receiver.getFov()); // Can also set this in the main view
 
 
 	Orientation7 control = receiver.getController();
@@ -57,7 +57,7 @@ void ofApp::update(){
 
 		std::fill(depth, depth+w*h, 0);
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*w*h);
-		cameraDepth.loadData(depth, 1280, 960, GL_RED);
+		cameraDepth.loadData(depth, w, h, GL_RED);
 
 		float threshold = .15;
 		depth_cam.setFov(70);
@@ -67,18 +67,13 @@ void ofApp::update(){
 				if (depth[x + w * y] != 0 && depth[x + w * y] == depth[x + w * y]) {
 
 					glm::vec4 CameraXYZ;
-					CameraXYZ.x = 2.0f * x / w - 1.0f;
-					CameraXYZ.y = 1.0f - 2.0f * y / h;
+					CameraXYZ.x = 2.9f * x / w - 1.45f;
+					CameraXYZ.y = 1.3f - 2.6f * y / h;
 					CameraXYZ.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
 					CameraXYZ.w = 1;
 
 					auto world = inv_MVPmatrix * CameraXYZ;
 					points[x + w * y] = glm::vec3(world) / world.w;
-
-					//ofVec3f screen_point(x, y, ofNormalize(depth[x + w * y]/1000.0, .35, 10));
-					//ofVec3f mesh_point = depth_cam.screenToWorld(screen_point, view);
-					//points[x + w * y] = mesh_point;
-					
 					
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
@@ -114,13 +109,20 @@ void ofApp::draw(){
 	ofBackground(255, 255, 255);
 	glDepthMask(GL_FALSE);  
 	ofSetColor(255,255,255);
-	cameraRGB.draw(0, 0, 0, ofGetWidth(), ofGetHeight());
-	ofSetColor(255,255,255,127);
-	//cameraDepth.draw(ofGetWidth()*.13, ofGetHeight()*.13, 0, ofGetWidth()*.87, ofGetHeight()*.87);
+	cameraRGB.draw(-ofGetWidth()*.24, -ofGetHeight()*.24, 0, ofGetWidth()*1.45, ofGetHeight()*1.45);
 	ofSetColor(255,255,255);
 	glDepthMask(GL_TRUE); 
 
-	depth_cam.setFov(receiver.getFov());
+	ofSetColor(255, 255, 255);
+	cam.setFov(82.5); 
+	cam.begin();
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	vbo.drawElements(GL_TRIANGLES, index);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	cam.end();
+
+	//depth_cam.setFov(receiver.getFov());
+	depth_cam.setFov(30);
 	if (flipped)
 		controller.begin();
 	else
@@ -139,14 +141,6 @@ void ofApp::draw(){
 		controller.draw();
 		depth_cam.end();
 	}
-	
-	ofSetColor(255, 255, 255);
-	cam.setFov(82.5); 
-	cam.begin();
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	vbo.drawElements(GL_TRIANGLES, index);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-	cam.end();
 }
 
 //--------------------------------------------------------------
@@ -156,7 +150,7 @@ void ofApp::keyPressed(int key){
 		case ' ':
 			n.setPosition(controller.getGlobalPosition());
 			n.setOrientation(controller.getGlobalOrientation());
-			n.setScale(.01);
+			n.setScale(.005);
 			nodes.push_back(n); 
 			break;
 		case 'f':
