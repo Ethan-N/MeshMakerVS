@@ -44,6 +44,10 @@ public:
 	float depth[1280 * 960];
 	int index;
 
+	int w;
+	int h;
+	float threshold;
+
 	ofCamera depth_cam;
 	ofCamera controller;
 
