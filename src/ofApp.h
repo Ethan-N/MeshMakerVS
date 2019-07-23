@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ofxBlackMagic.h"
 #include "ofMain.h"
 #include "ofxOsc.h"
 #include "receiver.h"
