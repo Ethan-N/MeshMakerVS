@@ -30,6 +30,18 @@ void ofApp::setup() {
 	controller.setScale(.005);
 
 	st.startThread();
+
+	auto deviceList = ofxBlackmagic::Iterator::getDeviceList();
+
+	//Technically can handle more than one input, but only sets input to last BlackMagic device
+	for(auto device : deviceList) {
+		auto input_dev = shared_ptr<ofxBlackmagic::Input>(new ofxBlackmagic::Input());
+
+		static int index = 0;
+		auto mode = index++ == 0 ? bmdModeHD1080p25 : bmdModeHD1080p24;
+		input_dev->startCapture(device, mode);
+		input = input_dev;
+	}
 }
 //--------------------------------------------------------------
 void ofApp::update(){
@@ -49,6 +61,9 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	controller.setPosition(control.pos);
+
+	input->update();
+	
 
 	if(st.lastDepthFrame().isValid()){
 
@@ -149,6 +164,8 @@ void ofApp::draw(){
 		controller.draw();
 		depth_cam.end();
 	}
+	ofSetColor(255);
+	input->draw(0, 0, ofGetWidth(), ofGetHeight());
 }
 
 //--------------------------------------------------------------

@@ -31,8 +31,6 @@ public:
     ofVbo vbo;
     ofCamera cam;
 
-	ofMesh mesh;
-
 	bool flipped;
 
 	Structure st;
@@ -54,4 +52,6 @@ public:
 
 	vector<ofNode> nodes;
     Receiver receiver;
+
+	shared_ptr<ofxBlackmagic::Input> input;
 };
