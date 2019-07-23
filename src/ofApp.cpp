@@ -9,14 +9,16 @@ void ofApp::setup() {
 	ofSetColor(255);
 	ofEnableDepthTest();
 
+	cam.setPosition(cam.getX(), cam.getY() + .25, cam.getZ() + .15);
+
 	depth_cam.setFov(70.); 
 	depth_cam.setNearClip(.35);
 	depth_cam.setFarClip(10);
 
 	depth_cam.setParent(cam, true);
-	depth_cam.setPosition(cam.getX()+.125, cam.getY(), cam.getZ());
+	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ()-.07);
 
-	cam.setFov(82.5); // this is overwritten by the osc receiver
+	cam.setFov(70); // this is overwritten by the osc receiver
 	cam.setNearClip(.35);
 	cam.setFarClip(10);
 
@@ -63,13 +65,8 @@ void ofApp::update(){
 	controller.setPosition(control.pos);
 
 	input->update();
-	
 
 	if(st.lastDepthFrame().isValid()){
-
-		memcpy(colors, st.lastVisibleFrame().rgbData(), sizeof(uint8_t)*640*480*3);
-		cameraRGB.loadData(colors, 640, 480, GL_RGB);
-
 		std::fill(depth, depth+w*h, 0);
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*w*h);
 		cameraDepth.loadData(depth, w, h, GL_RED);
@@ -83,7 +80,7 @@ void ofApp::update(){
 				if (depth[x + w * y] != 0 && depth[x + w * y] == depth[x + w * y]) {
 
 					ofVec3f CameraVec;
-					CameraVec.x = 2.9f * x / w - 1.45f;
+					CameraVec.x = 2.6f * x / w - 1.3f;
 					CameraVec.y = 1.3f - 2.6f * y / h;
 					CameraVec.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
 
@@ -131,12 +128,10 @@ void ofApp::update(){
 void ofApp::draw(){
 	ofBackground(255, 255, 255);
 	glDepthMask(GL_FALSE);  
-	ofSetColor(255,255,255);
-	cameraRGB.draw(-ofGetWidth()*.24, -ofGetHeight()*.24, 0, ofGetWidth()*1.45, ofGetHeight()*1.45);
-	ofSetColor(255,255,255);
+	ofSetColor(255);
+	input->draw(0, 0, ofGetWidth(), ofGetHeight());
 	glDepthMask(GL_TRUE); 
 
-	ofSetColor(255, 255, 255);
 	cam.setFov(82.5); 
 	cam.begin();
 	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -164,8 +159,6 @@ void ofApp::draw(){
 		controller.draw();
 		depth_cam.end();
 	}
-	ofSetColor(255);
-	input->draw(0, 0, ofGetWidth(), ofGetHeight());
 }
 
 //--------------------------------------------------------------

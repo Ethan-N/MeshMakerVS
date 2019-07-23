@@ -26,7 +26,6 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
-    ofTexture cameraRGB;
 	ofTexture cameraDepth;
     ofVbo vbo;
     ofCamera cam;
