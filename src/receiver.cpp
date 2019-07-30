@@ -50,7 +50,6 @@ void Receiver::threadedFunction() {
                 Orientation7 result;
                 result.pos = camera.getGlobalPosition();
                 result.quat = camera.getGlobalOrientation();
-                //result.trigger = m.getArgAsFloat(7);
                 
                 double time = static_cast<double>(ofGetElapsedTimeMicros() * 0.000001);
                 cameraMessages.add(time, result);
@@ -74,7 +73,7 @@ void Receiver::threadedFunction() {
                 
                 controllerState.pos = pointer.getGlobalPosition();
                 controllerState.quat = pointer.getGlobalOrientation();
-                //controllerState.trigger = m.getArgAsFloat(7);
+                controllerState.trigger = m.getArgAsFloat(7);
                 unlock();
             } else if (addr == "/fov") {
                 lock();

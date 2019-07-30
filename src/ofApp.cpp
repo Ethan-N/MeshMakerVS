@@ -30,6 +30,9 @@ void ofApp::setup() {
 
 	st.startThread();
 
+	circlenum = 0;
+	circles.resize(10000);
+
 	auto deviceList = ofxBlackmagic::Iterator::getDeviceList();
 
 	//Technically can handle more than one input, but only sets input to last BlackMagic device
@@ -60,6 +63,16 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	controller.setPosition(control.pos);
+	trigger = control.trigger;
+
+	if (control.trigger > 0) {
+		circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
+		circles.setColor(circlenum, ofColor(255*trigger, 255*trigger, 255));
+		circles.updateGpu();
+		circlenum += 1;
+	}
+	if (circlenum == circles.size())
+		circles.resize(circlenum * 2);
 
 	input->update();
 
@@ -77,7 +90,7 @@ void ofApp::update(){
 
 					ofVec3f CameraVec;
 					CameraVec.x = 2.0f * x / w - 1.0f;
-					//720p due SDI output from camera
+					//Height difference due to 720p from SDI output of camera
 					CameraVec.y = 1.0f - 2.0f * y / 720.0;
 					CameraVec.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
 
@@ -106,7 +119,6 @@ void ofApp::update(){
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofBackground(0,0,0);
 	glDepthMask(GL_FALSE);  
 	ofSetColor(255);
 	input->draw(0, 0, 1280, 720);
@@ -122,26 +134,14 @@ void ofApp::draw(){
 	//depth_cam.setFov(receiver.getFov());
 	depth_cam.setFov(33.75);
 	depth_cam.begin();
-	ofSetColor(255, 0, 255);
-	for (ofNode n : nodes) {
-		n.draw();
-	}
-	controller.draw();
+	ofSetColor(255);
+	circles.draw();
 	depth_cam.end();
 	depth_cam.move(0, .24, -.06);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	ofNode n;
-	switch (key) {
-		case ' ':
-			n.setPosition(controller.getGlobalPosition());
-			n.setOrientation(controller.getGlobalOrientation());
-			n.setScale(.005);
-			nodes.push_back(n); 
-			break;
-	}
 }
 
 //--------------------------------------------------------------

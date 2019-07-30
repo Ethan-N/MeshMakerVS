@@ -49,6 +49,9 @@
     <ClCompile Include="src\structure.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\circles.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -156,6 +159,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\structure.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\circles.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

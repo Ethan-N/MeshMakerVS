@@ -6,6 +6,7 @@
 #include "receiver.h"
 #include "msgDelay.h"
 #include "structure.h"
+#include "circles.h"
 
 class ofApp : public ofBaseApp{
     
@@ -43,12 +44,17 @@ public:
 	int w;
 	int h;
 	float threshold;
+	
 
 	ofCamera depth_cam;
 	ofCamera controller;
 
 	vector<ofNode> nodes;
     Receiver receiver;
+	float trigger;
+
+	Circles circles;
+	int circlenum;
 
 	shared_ptr<ofxBlackmagic::Input> input;
 };
