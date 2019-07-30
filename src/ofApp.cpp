@@ -8,6 +8,7 @@ void ofApp::setup() {
 	ofBackground(255);
 	ofSetColor(255);
 	ofEnableDepthTest();
+	ofSetVerticalSync(false);
 
 	cam.move(0, .24, 0);
 	cam.setNearClip(.35);
@@ -96,7 +97,9 @@ void ofApp::update(){
 					int diag_ind = x - 1 + w * (y - 1);
 					int top_ind = x + w * (y - 1);
 
-					if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
+					faces[index] = x + w * y;
+					index += 1;
+					/*if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
 						//Triangle 1, Bottom Left
 						if (points[x + w * y].squareDistance(points[left_ind]) < threshold and points[left_ind].squareDistance(points[diag_ind]) < threshold) {
 							faces[index] = diag_ind;
@@ -113,7 +116,7 @@ void ofApp::update(){
 
 							index += 3;
 						}
-					}
+					}*/
 				}
 			}
 		}
@@ -134,7 +137,7 @@ void ofApp::draw(){
 	cam.setFov(80); 
 	cam.begin();
 	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	vbo.drawElements(GL_TRIANGLES, index);
+	vbo.drawElements(GL_POINTS, index);
 	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
