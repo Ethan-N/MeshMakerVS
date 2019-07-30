@@ -121,7 +121,7 @@ void ofApp::update(){
 		vbo.setIndexData(&faces[0], index, GL_DYNAMIC_DRAW);
 	}
 
-	depth_cam.move(0, -.24, 0.06);;
+	depth_cam.move(0, -.24, 0.06);
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
