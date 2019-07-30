@@ -10,23 +10,17 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 
 	cam.move(0, .24, 0);
-
-
-	cam.setFov(82.5); // this is overwritten by the osc receiver
 	cam.setNearClip(.35);
 	cam.setFarClip(10);
 
-
 	depth_cam.setParent(cam, true);
 	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ());
-
-	depth_cam.setFov(70.); 
 	depth_cam.setNearClip(.35);
 	depth_cam.setFarClip(10);
 
 	w = 1280;
 	h = 960;
-	threshold = .15;
+	threshold = .387;
 
 	// Threaded OSC Receive
 	receiver.startThread();
@@ -82,6 +76,7 @@ void ofApp::update(){
 
 					ofVec3f CameraVec;
 					CameraVec.x = 2.0f * x / w - 1.0f;
+					//720p due SDI output from camera
 					CameraVec.y = 1.0f - 2.0f * y / 720.0;
 					CameraVec.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
 
@@ -101,9 +96,9 @@ void ofApp::update(){
 					int diag_ind = x - 1 + w * (y - 1);
 					int top_ind = x + w * (y - 1);
 
-					if (points[x + w * y].distance(points[diag_ind]) < threshold) {
+					if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
 						//Triangle 1, Bottom Left
-						if (points[x + w * y].distance(points[left_ind]) < threshold and points[left_ind].distance(points[diag_ind]) < threshold) {
+						if (points[x + w * y].squareDistance(points[left_ind]) < threshold and points[left_ind].squareDistance(points[diag_ind]) < threshold) {
 							faces[index] = diag_ind;
 							faces[index + 1] = x + w * y;
 							faces[index + 2] = left_ind;
@@ -111,7 +106,7 @@ void ofApp::update(){
 							index += 3;
 						}
 						//Triangle 2, Top Right
-						if (points[x + w * y].distance(points[top_ind]) < threshold and points[top_ind].distance(points[diag_ind]) < threshold) {
+						if (points[x + w * y].squareDistance(points[top_ind]) < threshold and points[top_ind].squareDistance(points[diag_ind]) < threshold) {
 							faces[index] = diag_ind;
 							faces[index + 1] = x + w * y;
 							faces[index + 2] = top_ind;
@@ -138,9 +133,9 @@ void ofApp::draw(){
 
 	cam.setFov(80); 
 	cam.begin();
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_TRIANGLES, index);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
 	//depth_cam.setFov(receiver.getFov());
