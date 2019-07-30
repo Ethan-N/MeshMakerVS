@@ -30,8 +30,6 @@ public:
     ofVbo vbo;
     ofCamera cam;
 
-	bool flipped;
-
 	Structure st;
 
 	uint8_t colors[640 * 480 * 3];

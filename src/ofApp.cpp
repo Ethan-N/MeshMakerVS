@@ -9,7 +9,7 @@ void ofApp::setup() {
 	ofSetColor(255);
 	ofEnableDepthTest();
 
-	cam.setPosition(cam.getX(), cam.getY() + .24, cam.getZ());
+	cam.move(0, .24, 0);
 
 
 	cam.setFov(82.5); // this is overwritten by the osc receiver
@@ -125,6 +125,8 @@ void ofApp::update(){
 		vbo.setVertexData(&points[0], w*h, GL_DYNAMIC_DRAW);
 		vbo.setIndexData(&faces[0], index, GL_DYNAMIC_DRAW);
 	}
+
+	depth_cam.move(0, -.24, 0.06);;
 }
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -136,13 +138,13 @@ void ofApp::draw(){
 
 	cam.setFov(80); 
 	cam.begin();
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_TRIANGLES, index);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
-	depth_cam.setFov(receiver.getFov());
-	//depth_cam.setFov(30);
+	//depth_cam.setFov(receiver.getFov());
+	depth_cam.setFov(33.75);
 	depth_cam.begin();
 	ofSetColor(255, 0, 255);
 	for (ofNode n : nodes) {
@@ -150,6 +152,7 @@ void ofApp::draw(){
 	}
 	controller.draw();
 	depth_cam.end();
+	depth_cam.move(0, .24, -.06);
 }
 
 //--------------------------------------------------------------
