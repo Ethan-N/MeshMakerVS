@@ -92,31 +92,9 @@ void ofApp::update(){
 
 					//auto world = inv_MVPmatrix * CameraXYZ;
 					//points[x + w * y] = glm::vec3(world) / world.w;
-					
-					int left_ind = x - 1 + w * y;
-					int diag_ind = x - 1 + w * (y - 1);
-					int top_ind = x + w * (y - 1);
 
 					faces[index] = x + w * y;
 					index += 1;
-					/*if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
-						//Triangle 1, Bottom Left
-						if (points[x + w * y].squareDistance(points[left_ind]) < threshold and points[left_ind].squareDistance(points[diag_ind]) < threshold) {
-							faces[index] = diag_ind;
-							faces[index + 1] = x + w * y;
-							faces[index + 2] = left_ind;
-
-							index += 3;
-						}
-						//Triangle 2, Top Right
-						if (points[x + w * y].squareDistance(points[top_ind]) < threshold and points[top_ind].squareDistance(points[diag_ind]) < threshold) {
-							faces[index] = diag_ind;
-							faces[index + 1] = x + w * y;
-							faces[index + 2] = top_ind;
-
-							index += 3;
-						}
-					}*/
 				}
 			}
 		}
