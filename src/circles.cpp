@@ -34,7 +34,7 @@ void Circles::setGeometry(int resolution, float radius) {
 };
 
 void Circles::resize(size_t size) {
-    matrices.resize(size);
+    matrices.resize(size, ofMatrix4x4(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
     buffer.setData(matrices, GL_STREAM_DRAW);
     tex.allocateAsBufferTexture(buffer, GL_RGBA32F); // https://www.opengl.org/wiki/Buffer_Texture
 
@@ -61,6 +61,10 @@ void Circles::setColor(size_t i, const ofColor color) {
 
 void Circles::setMatrix(size_t i, const glm::mat4 matrix) {
     if (i < matrices.size()) matrices[i] = matrix;
+}
+
+glm::mat4 Circles::getMatrix(size_t i) {
+	return matrices[i];
 }
 
 void Circles::updateGpu() {

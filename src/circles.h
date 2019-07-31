@@ -25,6 +25,7 @@ public:
     size_t size();
     void setColor(size_t i, ofColor color);
     void setMatrix(size_t i, const glm::mat4 matrix);
+	glm::mat4 getMatrix(size_t i);
     void updateGpu();
     void draw();
 
