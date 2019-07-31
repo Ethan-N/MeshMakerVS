@@ -26,7 +26,7 @@ void ofApp::setup() {
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	controller.setScale(.005);
+	controller.setScale(.01);
 
 	st.startThread();
 
@@ -67,7 +67,7 @@ void ofApp::update(){
 
 	if (control.trigger > 0) {
 		circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
-		circles.setColor(circlenum, ofColor(255*trigger, 255*trigger, 255));
+		circles.setColor(circlenum, ofColor::fromHsb(255*trigger, 255, 255));
 		circles.updateGpu();
 		circlenum += 1;
 	}
@@ -126,9 +126,9 @@ void ofApp::draw(){
 
 	cam.setFov(80); 
 	cam.begin();
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_POINTS, index);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
 	//depth_cam.setFov(receiver.getFov());
