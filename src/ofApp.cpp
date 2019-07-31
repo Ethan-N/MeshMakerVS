@@ -1,6 +1,25 @@
 #include "ofApp.h"
 #include <ST/CaptureSession.h>
 
+template <class vectype>
+vectype curvePoint(const vectype& a, const vectype& b, const vectype& c, const vectype& d, float t){
+	vectype pt;
+	float t2 = t * t;
+	float t3 = t2 * t;
+	pt.x = 0.5f * ( ( 2.0f * b.x ) +
+		( -a.x + c.x ) * t +
+		( 2.0f * a.x - 5.0f * b.x + 4 * c.x - d.x ) * t2 +
+		( -a.x + 3.0f * b.x - 3.0f * c.x + d.x ) * t3 );
+	pt.y = 0.5f * ( ( 2.0f * b.y ) +
+		( -a.y + c.y ) * t +
+		( 2.0f * a.y - 5.0f * b.y + 4 * c.y - d.y ) * t2 +
+		( -a.y + 3.0f * b.y - 3.0f * c.y + d.y ) * t3 );
+	pt.z = 0.5f * ( ( 2.0f * b.z ) +
+		( -a.z + c.z ) * t +
+		( 2.0f * a.z - 5.0f * b.z + 4 * c.z - d.z ) * t2 +
+		( -a.z + 3.0f * b.z - 3.0f * c.z + d.z ) * t3 );
+	return pt;
+}
 
 //--------------------------------------------------------------
 void ofApp::setup() {
@@ -30,8 +49,12 @@ void ofApp::setup() {
 
 	st.startThread();
 
+	curve_count = 0;
 	circlenum = 0;
-	circles.resize(10000);
+	circles.resize(100000);
+	circles.updateGpu();
+	ofLog() << circles.getMatrix(0);
+	pressed = false;
 
 	auto deviceList = ofxBlackmagic::Iterator::getDeviceList();
 
@@ -62,17 +85,45 @@ void ofApp::update(){
 
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
-	controller.setPosition(control.pos);
-	trigger = control.trigger;
+	ofVec3f old_pos = controller.getPosition();
+	//controller.setPosition(control.pos);
 
-	if (control.trigger > 0) {
+	if (control.trigger > 0 && !pressed) {
+		pressed = true;
+		curve_count = 1;
+		positions[0] = control.pos;
+		controller.setPosition(control.pos);
 		circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
-		circles.setColor(circlenum, ofColor::fromHsb(255*trigger, 255, 255));
+		circles.setColor(circlenum, ofColor::fromHsb(255*control.trigger, 255, 255));
 		circles.updateGpu();
 		circlenum += 1;
 	}
-	if (circlenum == circles.size())
-		circles.resize(circlenum * 2);
+	else if (curve_count < 3 && control.trigger > 0) {
+		positions[curve_count]  = control.pos;
+		curve_count += 1;
+	}
+	else if (control.trigger > 0) {
+		if (curve_count == 3) {
+			positions[3] = control.pos;
+			curve_count += 1;
+		}
+		else {
+			positions[0] = positions[1];
+			positions[1] = positions[2];
+			positions[2] = positions[3];
+			positions[3] = control.pos;
+		}
+		for (int i = 1; i < 11; i++) {
+			controller.setPosition(curvePoint(positions[0], positions[1], positions[2], positions[3], i * .1));
+			circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
+			circles.setColor(circlenum, ofColor::fromHsb(255 * control.trigger, 255, 255));
+			circles.updateGpu();
+			circlenum += 1;
+		}
+	}
+	else if (control.trigger == 0 && pressed) {
+		pressed = false;
+	}
 
 	input->update();
 
@@ -120,21 +171,19 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	glDepthMask(GL_FALSE);  
-	ofSetColor(255);
 	input->draw(0, 0, 1280, 720);
 	glDepthMask(GL_TRUE); 
 
 	cam.setFov(80); 
 	cam.begin();
-	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_POINTS, index);
-	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
 	//depth_cam.setFov(receiver.getFov());
 	depth_cam.setFov(33.75);
 	depth_cam.begin();
-	ofSetColor(255);
 	circles.draw();
 	depth_cam.end();
 	depth_cam.move(0, .24, -.06);

@@ -51,7 +51,10 @@ public:
 
 	vector<ofNode> nodes;
     Receiver receiver;
-	float trigger;
+
+	bool pressed;
+	int curve_count;
+	ofVec3f positions[4];
 
 	Circles circles;
 	int circlenum;
