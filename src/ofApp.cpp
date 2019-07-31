@@ -1,26 +1,6 @@
 #include "ofApp.h"
 #include <ST/CaptureSession.h>
 
-template <class vectype>
-vectype curvePoint(const vectype& a, const vectype& b, const vectype& c, const vectype& d, float t){
-	vectype pt;
-	float t2 = t * t;
-	float t3 = t2 * t;
-	pt.x = 0.5f * ( ( 2.0f * b.x ) +
-		( -a.x + c.x ) * t +
-		( 2.0f * a.x - 5.0f * b.x + 4 * c.x - d.x ) * t2 +
-		( -a.x + 3.0f * b.x - 3.0f * c.x + d.x ) * t3 );
-	pt.y = 0.5f * ( ( 2.0f * b.y ) +
-		( -a.y + c.y ) * t +
-		( 2.0f * a.y - 5.0f * b.y + 4 * c.y - d.y ) * t2 +
-		( -a.y + 3.0f * b.y - 3.0f * c.y + d.y ) * t3 );
-	pt.z = 0.5f * ( ( 2.0f * b.z ) +
-		( -a.z + c.z ) * t +
-		( 2.0f * a.z - 5.0f * b.z + 4 * c.z - d.z ) * t2 +
-		( -a.z + 3.0f * b.z - 3.0f * c.z + d.z ) * t3 );
-	return pt;
-}
-
 //--------------------------------------------------------------
 void ofApp::setup() {
 	ofSetFrameRate(60);
@@ -80,13 +60,10 @@ void ofApp::update(){
 
 	cam.setOrientation(cor.quat);
 	cam.setPosition(cor.pos);
-	//cam.setFov(receiver.getFov()); // Can also set this in the main view
-
 
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
-	//controller.setPosition(control.pos);
 
 	if (control.trigger > 0 && !pressed) {
 		pressed = true;
@@ -114,7 +91,7 @@ void ofApp::update(){
 			positions[3] = control.pos;
 		}
 		for (int i = 1; i < 11; i++) {
-			controller.setPosition(curvePoint(positions[0], positions[1], positions[2], positions[3], i * .1));
+			controller.setPosition(ofInterpolateCatmullRom(positions[0], positions[1], positions[2], positions[3], i * .1));
 			circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
 			circles.setColor(circlenum, ofColor::fromHsb(255 * control.trigger, 255, 255));
 			circles.updateGpu();
