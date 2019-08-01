@@ -63,6 +63,12 @@ void Circles::setMatrix(size_t i, const glm::mat4 matrix) {
     if (i < matrices.size()) matrices[i] = matrix;
 }
 
+void Circles::clear() {
+	for (int i = 0; i < matrices.size(); i++) {
+		matrices[i] = ofMatrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	}
+}
+
 glm::mat4 Circles::getMatrix(size_t i) {
 	return matrices[i];
 }

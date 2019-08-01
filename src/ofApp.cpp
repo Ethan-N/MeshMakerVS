@@ -15,8 +15,8 @@ void ofApp::setup() {
 
 	depth_cam.setParent(cam, true);
 	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ());
-	depth_cam.setNearClip(.35);
-	depth_cam.setFarClip(10);
+	depth_cam.setNearClip(.58);
+	depth_cam.setFarClip(8);
 
 	w = 1280;
 	h = 960;
@@ -94,7 +94,7 @@ void ofApp::update(){
 		}
 		for (int i = 1; i < 11; i++) {
 			controller.setPosition(ofInterpolateCatmullRom(positions[0], positions[1], positions[2], positions[3], i * .1));
-			circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
+			circles.setMatrix(circlenum, controller.getGlobalTransformMatrix());
 			circles.setColor(circlenum, ofColor::fromHsb(255 * control.trigger, 255, 255));
 			circles.updateGpu();
 			circlenum += 1;
@@ -112,32 +112,34 @@ void ofApp::update(){
 		
 		index = 0;
 		depth_cam.setFov(80);
+		ofVec3f CameraVec;
 		glm::mat4 inv_MVPmatrix = glm::inverse(depth_cam.getModelViewProjectionMatrix());
 		float* vec_point = glm::value_ptr(inv_MVPmatrix);
 		for (int y=0; y<h; ++y) {
 			for (int x=0; x<w; ++x) {
-				if (depth[x + w * y] != 0 && depth[x + w * y] == depth[x + w * y]) {
-
-					ofVec3f CameraVec;
+				if (depth[x + w * y] != 0 && depth[x + w * y] < 8000 && depth[x + w * y] == depth[x + w * y]) {
 					CameraVec.x = 2.0f * x / w - 1.0f;
 					//Height difference due to 720p from SDI output of camera
 					CameraVec.y = 1.0f - 2.0f * y / 720.0;
 					CameraVec.z = ofNormalize(depth[x + w * y]/1000.0, .35, 10);
 
+
 					float* CameraXYZ = CameraVec.getPtr();
 					float* point = points[(x + w * y)].getPtr();
+					
 
 					//Slight optimization over standard matrix multiplication
 					float w_vec = (*(vec_point+3) * *CameraXYZ + *(vec_point+7) * *(CameraXYZ+1) + *(vec_point+11) * *(CameraXYZ+2) + *(vec_point+15));
-					*point = (*vec_point * *CameraXYZ + *(vec_point+4) * *(CameraXYZ+1) + *(vec_point+8) * *(CameraXYZ+2) + *(vec_point+12)) / w_vec;
-					*(point+1) = (*(vec_point+1) * *CameraXYZ + *(vec_point+5) * *(CameraXYZ+1) + *(vec_point+9) * *(CameraXYZ+2) + *(vec_point+13)) / w_vec;
-					*(point+2) = (*(vec_point+2) * *CameraXYZ + *(vec_point+6) * *(CameraXYZ+1) + *(vec_point+10) * *(CameraXYZ+2) + *(vec_point+14)) / w_vec;
 
+					*point = (*vec_point * *CameraXYZ + *(vec_point+4) * *(CameraXYZ+1) + *(vec_point+8) * *(CameraXYZ+2) + *(vec_point+12)) / w_vec;
+					*(point + 1) = (*(vec_point+1) * *CameraXYZ + *(vec_point+5) * *(CameraXYZ+1) + *(vec_point+9) * *(CameraXYZ+2) + *(vec_point+13)) / w_vec;
+					*(point + 2) =  (*(vec_point+2) * *CameraXYZ + *(vec_point+6) * *(CameraXYZ+1) + *(vec_point+10) * *(CameraXYZ+2) + *(vec_point+14)) / w_vec;
 					//auto world = inv_MVPmatrix * CameraXYZ;
 					//points[x + w * y] = glm::vec3(world) / world.w;
 
 					faces[index] = x + w * y;
 					index += 1;
+					
 				}
 			}
 		}
@@ -152,6 +154,7 @@ void ofApp::update(){
 	glDepthMask(GL_FALSE);  
 	input->draw(0, 0, 1280, 720);
 	glDepthMask(GL_TRUE); 
+
 
 	cam.setFov(80); 
 	cam.begin();
@@ -189,6 +192,12 @@ void ofApp::keyPressed(int key){
 	switch (key) {
 	case 'm':
 		draw_mesh = !draw_mesh;
+		break;
+	case 'e':
+		circles.clear();
+		circlenum = 0;
+		circles.updateGpu();
+		break;
 	}
 }
 

@@ -28,6 +28,7 @@ public:
 	glm::mat4 getMatrix(size_t i);
     void updateGpu();
     void draw();
+	void clear();
 
     // The defaults probably work fine, but it can be useful to specify geometry
     void setGeometry(int resolution, float radius);
