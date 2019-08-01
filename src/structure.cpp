@@ -181,7 +181,7 @@
 		settings.structureCore.depthResolution = ST::StructureCoreDepthResolution::SXGA;
 		settings.structureCore.imuUpdateRate = ST::StructureCoreIMUUpdateRate::AccelAndGyro_100Hz;
 		settings.structureCore.depthRangeMode = ST::StructureCoreDepthRangeMode::Hybrid;
-		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::ContinuousNonPersistent;
+		settings.structureCore.dynamicCalibrationMode = ST::StructureCoreDynamicCalibrationMode::Off;
 		//settings.applyExpensiveCorrection = true;
 
 		return settings;
