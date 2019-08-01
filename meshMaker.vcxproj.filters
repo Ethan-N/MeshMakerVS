@@ -52,6 +52,39 @@
     <ClCompile Include="src\circles.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutDirectX.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutGLDXinterop.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutGLextensions.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutMemoryShare.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutReceiver.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutSDK.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutSender.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutSenderNames.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\libs\src\SpoutSharedMemory.cpp">
+      <Filter>addons\ofxSpout2\libs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\src\ofxSpout2Receiver.cpp">
+      <Filter>addons\ofxSpout2\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\addons\ofxSpout2\src\ofxSpout2Sender.cpp">
+      <Filter>addons\ofxSpout2\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -86,6 +119,21 @@
     </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{8e2447ae-fe40-4f56-a7e0-545260a519d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxSpout2">
+      <UniqueIdentifier>{f2c1b1e2-804d-46f0-ac8e-eeba675532bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxSpout2\libs">
+      <UniqueIdentifier>{fc3b61fa-634b-45a2-b7a0-dd9fa6b67d72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxSpout2\src">
+      <UniqueIdentifier>{27141f7d-76c2-472e-8dec-cf91cdfbc22d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxSpout2\libs\include">
+      <UniqueIdentifier>{10d3619a-5ed8-4374-8288-1e1d48e51244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="addons\ofxSpout2\libs\src">
+      <UniqueIdentifier>{50799eb6-b018-40ad-9aa0-db1c8aad6947}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +211,45 @@
     </ClInclude>
     <ClInclude Include="src\circles.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\Spout.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutCommon.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutDirectX.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutGLDXinterop.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutGLextensions.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutMemoryShare.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutReceiver.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutSDK.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutSender.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutSenderNames.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\libs\include\SpoutSharedMemory.h">
+      <Filter>addons\ofxSpout2\libs\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\src\ofxSpout2Receiver.h">
+      <Filter>addons\ofxSpout2\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxSpout2\src\ofxSpout2Sender.h">
+      <Filter>addons\ofxSpout2\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

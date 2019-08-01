@@ -20,7 +20,6 @@ void ofApp::setup() {
 
 	w = 1280;
 	h = 960;
-	threshold = .387;
 
 	// Threaded OSC Receive
 	receiver.startThread();
@@ -28,6 +27,7 @@ void ofApp::setup() {
 	controller.setScale(.01);
 
 	st.startThread();
+	draw_mesh = false;
 
 	curve_count = 0;
 	circlenum = 0;
@@ -47,6 +47,8 @@ void ofApp::setup() {
 		input_dev->startCapture(device, mode);
 		input = input_dev;
 	}
+
+	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
 //--------------------------------------------------------------
 void ofApp::update(){
@@ -144,18 +146,20 @@ void ofApp::update(){
 	}
 
 	depth_cam.move(0, -.24, 0.06);
-}
-//--------------------------------------------------------------
-void ofApp::draw(){
+
+	fbo.begin();
+	ofClear(0,0,0,255);
 	glDepthMask(GL_FALSE);  
 	input->draw(0, 0, 1280, 720);
 	glDepthMask(GL_TRUE); 
 
 	cam.setFov(80); 
 	cam.begin();
-	//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	if(draw_mesh)
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	vbo.drawElements(GL_POINTS, index);
-	//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	if(draw_mesh)
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 
 	//depth_cam.setFov(receiver.getFov());
@@ -164,10 +168,28 @@ void ofApp::draw(){
 	circles.draw();
 	depth_cam.end();
 	depth_cam.move(0, .24, -.06);
+	fbo.end();
+
+	spout.sendTexture(fbo.getTexture(), "composition");           
+}
+//--------------------------------------------------------------
+void ofApp::draw(){
+	ofSetColor(255);
+	ofClear(0,0,0,255);
+	fbo.draw(0,0);
+}
+
+//--------------------------------------------------------------
+void ofApp::exit() {
+	spout.exit();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	switch (key) {
+	case 'm':
+		draw_mesh = !draw_mesh;
+	}
 }
 
 //--------------------------------------------------------------

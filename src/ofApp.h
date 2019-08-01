@@ -3,6 +3,7 @@
 #include "ofxBlackMagic.h"
 #include "ofMain.h"
 #include "ofxOsc.h"
+#include "ofxSpout2Sender.h"
 #include "receiver.h"
 #include "msgDelay.h"
 #include "structure.h"
@@ -27,6 +28,8 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+	void exit();
+
 	ofTexture cameraDepth;
     ofVbo vbo;
     ofCamera cam;
@@ -43,8 +46,8 @@ public:
 
 	int w;
 	int h;
-	float threshold;
 	
+	bool draw_mesh;
 
 	ofCamera depth_cam;
 	ofCamera controller;
@@ -60,4 +63,7 @@ public:
 	int circlenum;
 
 	shared_ptr<ofxBlackmagic::Input> input;
+
+	ofFbo fbo;
+	ofxSpout2::Sender spout;
 };
