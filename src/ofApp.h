@@ -42,7 +42,7 @@ public:
 	ofVec3f points[1280 * 960];
 	ofFloatColor color[640 * 480];
 	float depth[1280 * 960];
-	int index;
+	int count;
 
 	int w;
 	int h;
@@ -61,6 +61,18 @@ public:
 
 	Circles circles;
 	int circlenum;
+
+	float image_diag;
+	float vert_fov;
+	float horiz_fov;
+	float focus_len;
+
+	float abs_height[1280 * 960];
+	float abs_width[1280 * 960];
+	float pixel_base[1280 * 960];
+	float pixel_angle[1280 * 960];
+	float pixel_focus[1280 * 960];
+	float pixel_base_ang[1280 * 960];
 
 	shared_ptr<ofxBlackmagic::Input> input;
 
