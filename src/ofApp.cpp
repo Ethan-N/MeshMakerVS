@@ -9,14 +9,15 @@ void ofApp::setup() {
 	ofEnableDepthTest();
 	ofSetVerticalSync(false);
 
-	cam.move(0, .24, 0);
 	cam.setNearClip(.35);
 	cam.setFarClip(10);
+	cam.setFov(40);
 
 	depth_cam.setParent(cam, true);
-	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ());
+	depth_cam.setPosition(cam.getX(), cam.getY()-.08, cam.getZ());
 	depth_cam.setNearClip(.35);
 	depth_cam.setFarClip(10);
+	depth_cam.setFov(35.0);
 
 	w = 1280;
 	h = 960;
@@ -199,9 +200,9 @@ void ofApp::update(){
 
 	//Circles and Mesh need to be in different cameras for glColorMask to Work
 
+	//.08m is the distance between tracker and camera lens
 	cam.move(0, -.08, 0);
 	//cam.setFov(receiver.getFov()); 
-	cam.setFov(40.0);
 	cam.begin();
 	if(!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -216,13 +217,10 @@ void ofApp::update(){
 	
 
 	//z might still be around .06 but hard to tell
-	depth_cam.move(0, -.32, 0);
-	depth_cam.setFov(35.0);
 	depth_cam.begin();
 	circles.draw();
 	//controller.draw();
 	depth_cam.end();
-	depth_cam.move(0, .32, 0);
 	fbo.end();
 	
 	spout.sendTexture(fbo.getTexture(), "composition");           
