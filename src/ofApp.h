@@ -43,11 +43,13 @@ public:
 	ofFloatColor color[640 * 480];
 	float depth[1280 * 960];
 	int count;
+	float threshold;
 
 	int w;
 	int h;
 	
 	bool draw_mesh;
+	bool triangles;
 
 	ofCamera depth_cam;
 	ofCamera controller;

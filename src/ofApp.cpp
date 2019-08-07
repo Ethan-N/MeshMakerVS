@@ -10,13 +10,13 @@ void ofApp::setup() {
 	ofSetVerticalSync(false);
 
 	cam.move(0, .24, 0);
-	cam.setNearClip(.2);
+	cam.setNearClip(.35);
 	cam.setFarClip(10);
 
 	depth_cam.setParent(cam, true);
 	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ());
-	depth_cam.setNearClip(.58);
-	depth_cam.setFarClip(8);
+	depth_cam.setNearClip(.35);
+	depth_cam.setFarClip(10);
 
 	w = 1280;
 	h = 960;
@@ -27,7 +27,9 @@ void ofApp::setup() {
 	controller.setScale(.01);
 
 	st.startThread();
+
 	draw_mesh = false;
+	triangles = false;
 
 	curve_count = 0;
 	circlenum = 0;
@@ -49,6 +51,8 @@ void ofApp::setup() {
 	}
 
 	float diag_fov = 70.0;
+
+	threshold = .387;
 
 	image_diag = sqrt(pow(w, 2) + pow(h, 2));
 	vert_fov = diag_fov * h / image_diag;
@@ -124,8 +128,8 @@ void ofApp::update(){
 		pressed = false;
 	}
 	
-	//float scale = receiver.getDelay();
-	float scale = 2000.0;
+	//float scale = receiver.getScale();
+	float scale = 1333.0;
 
 	input->update();
 
@@ -144,20 +148,39 @@ void ofApp::update(){
 
 					points[(x + w * y)] = cam.getPosition();
 					if (x >= w / 2.0)
-						points[(x + w * y)] += (cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale * 1.33;
+						points[(x + w * y)] += (cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale;
 					else
-						points[(x + w * y)] += -(cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale * 1.33;
+						points[(x + w * y)] += -(cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale;
 
 					if (y >= h / 2.0)
-						points[(x + w * y)] += -obj_height * cam.getYAxis() / scale;
+						points[(x + w * y)] += -obj_height * cam.getYAxis() / (scale * 1.333);
 					else
-						points[(x + w * y)] += obj_height * cam.getYAxis() / scale;
+						points[(x + w * y)] += obj_height * cam.getYAxis() / (scale * 1.333);
 
 					points[(x + w * y)] += -sin(pixel_base_ang[x + w * y]) * actual_pixel_base * cam.getZAxis() / 1000.0;
-					//points[(x + w * y)] += - .01 * cam.getZAxis();
+					
+					int left_ind = x - 1 + w * y;
+					int diag_ind = x - 1 + w * (y - 1);
+					int top_ind = x + w * (y - 1);
 
-					faces[count] = x + w * y;
-					count += 1;
+					if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
+						//Triangle 1, Bottom Left
+						if (points[x + w * y].squareDistance(points[left_ind]) < threshold and points[left_ind].squareDistance(points[diag_ind]) < threshold) {
+							faces[count] = diag_ind;
+							faces[count + 1] = x + w * y;
+							faces[count + 2] = left_ind;
+
+							count += 3;
+						}
+						//Triangle 2, Top Right
+						if (points[x + w * y].squareDistance(points[top_ind]) < threshold and points[top_ind].squareDistance(points[diag_ind]) < threshold) {
+							faces[count] = diag_ind;
+							faces[count + 1] = x + w * y;
+							faces[count + 2] = top_ind;
+
+							count += 3;
+						}
+					}
 				}
 			}
 		}
@@ -173,27 +196,31 @@ void ofApp::update(){
 	input->draw(0, 0, 1280, 720);
 	glDepthMask(GL_TRUE); 
 
-	/*cam.setFov(receiver.getFov()); 
+
+	//Circles and Mesh need to be in different cameras for glColorMask to Work
+
+	cam.move(0, -.08, 0);
+	//cam.setFov(receiver.getFov()); 
+	cam.setFov(40.0);
 	cam.begin();
-	if(draw_mesh)
+	if(!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	vbo.drawElements(GL_POINTS, index);
-	if(draw_mesh)
+	if(triangles)
+		vbo.drawElements(GL_TRIANGLES, count);
+	else
+		vbo.drawElements(GL_POINTS, count);
+	if(!draw_mesh)
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
-	*/
+	cam.move(0, .08, 0);
+	
 
 	//z might still be around .06 but hard to tell
 	depth_cam.move(0, -.32, 0);
-	depth_cam.setFov(40.0);
+	depth_cam.setFov(35.0);
 	depth_cam.begin();
 	circles.draw();
-	controller.draw();
-	if (draw_mesh)
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	vbo.drawElements(GL_POINTS, count);
-	if(draw_mesh)
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	//controller.draw();
 	depth_cam.end();
 	depth_cam.move(0, .32, 0);
 	fbo.end();
@@ -217,6 +244,9 @@ void ofApp::keyPressed(int key){
 	switch (key) {
 	case 'm':
 		draw_mesh = !draw_mesh;
+		break;
+	case 't':
+		triangles = !triangles;
 		break;
 	case 'e':
 		circles.clear();
