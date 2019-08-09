@@ -53,6 +53,7 @@ public:
 
 	ofCamera depth_cam;
 	ofCamera controller;
+	ofTrueTypeFont text;
 
 	vector<ofNode> nodes;
     Receiver receiver;

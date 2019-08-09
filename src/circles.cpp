@@ -67,6 +67,7 @@ void Circles::clear() {
 	for (int i = 0; i < matrices.size(); i++) {
 		matrices[i] = ofMatrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	}
+	updateGpu();
 }
 
 glm::mat4 Circles::getMatrix(size_t i) {

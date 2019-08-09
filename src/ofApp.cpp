@@ -14,7 +14,7 @@ void ofApp::setup() {
 	cam.setFov(40);
 
 	depth_cam.setParent(cam, true);
-	depth_cam.setPosition(cam.getX(), cam.getY()-.08, cam.getZ());
+	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ()-.06);
 	depth_cam.setNearClip(.35);
 	depth_cam.setFarClip(10);
 	depth_cam.setFov(35.0);
@@ -53,7 +53,7 @@ void ofApp::setup() {
 
 	float diag_fov = 70.0;
 
-	threshold = .387;
+	threshold = .001;
 
 	image_diag = sqrt(pow(w, 2) + pow(h, 2));
 	vert_fov = diag_fov * h / image_diag;
@@ -70,6 +70,8 @@ void ofApp::setup() {
 			pixel_base_ang[x + w * y] = asin(focus_len/pixel_base[x + w * y]);
 		}
 	}
+	
+	text.load("swromns.ttf", 32);
 
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
@@ -89,7 +91,6 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
-	controller.setPosition(control.pos);
 
 	
 	if (control.trigger > 0 && !pressed) {
@@ -195,8 +196,10 @@ void ofApp::update(){
 	ofClear(0,0,0,255);
 	glDepthMask(GL_FALSE);  
 	input->draw(0, 0, 1280, 720);
+	text.drawString("Test Text", 100,100);
 	glDepthMask(GL_TRUE); 
 
+	
 
 	//Circles and Mesh need to be in different cameras for glColorMask to Work
 
@@ -204,6 +207,7 @@ void ofApp::update(){
 	cam.move(0, -.08, 0);
 	//cam.setFov(receiver.getFov()); 
 	cam.begin();
+
 	if(!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	if(triangles)
@@ -249,7 +253,6 @@ void ofApp::keyPressed(int key){
 	case 'e':
 		circles.clear();
 		circlenum = 0;
-		circles.updateGpu();
 		break;
 	}
 }
