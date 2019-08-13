@@ -17,7 +17,7 @@ void ofApp::setup() {
 	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ()-.06);
 	depth_cam.setNearClip(.35);
 	depth_cam.setFarClip(10);
-	depth_cam.setFov(35.0);
+	depth_cam.setFov(32.5);
 
 	w = 1280;
 	h = 960;
@@ -30,7 +30,7 @@ void ofApp::setup() {
 	st.startThread();
 
 	draw_mesh = false;
-	triangles = false;
+	triangles = true;
 
 	curve_count = 0;
 	circlenum = 0;
@@ -51,25 +51,9 @@ void ofApp::setup() {
 		input = input_dev;
 	}
 
-	float diag_fov = 70.0;
 
 	threshold = .001;
 
-	image_diag = sqrt(pow(w, 2) + pow(h, 2));
-	vert_fov = diag_fov * h / image_diag;
-	horiz_fov = diag_fov * w / image_diag;
-	focus_len = (image_diag / 2.0) / tan(vert_fov * 3.1415 / 180.0 / 2.0);
-
-	for (int y = 0; y < h; ++y) {
-		for (int x = 0; x < w; ++x) {
-			abs_height[x + w * y] = abs(h / 2.0 - y);
-			abs_width[x + w * y] = abs(w / 2.0 - x);
-			pixel_base[x + w * y] = sqrt(pow(focus_len, 2) + pow(abs_width[x + w * y], 2));
-			pixel_angle[x + w * y] = atan2(abs_height[x + w * y], pixel_base[x + w * y]);
-			pixel_focus[x + w * y] = sqrt(pow(pixel_base[x + w * y], 2) + pow(abs_height[x + w * y], 2));
-			pixel_base_ang[x + w * y] = asin(focus_len/pixel_base[x + w * y]);
-		}
-	}
 	
 	text.load("swromns.ttf", 32);
 
@@ -91,6 +75,25 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
+
+
+	float diag_fov = 70.0;
+	image_diag = sqrt(pow(w, 2) + pow(h, 2));
+	vert_fov = diag_fov * h / image_diag;
+	//46.0
+	vert_fov = receiver.getFov();
+	focus_len = (h / 2.0) / tan(vert_fov * 3.1415 / 180.0 / 2.0);
+
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			abs_height[x + w * y] = abs(h / 2.0 - y);
+			abs_width[x + w * y] = abs(w / 2.0 - x);
+			pixel_base[x + w * y] = sqrt(pow(focus_len, 2) + pow(abs_width[x + w * y], 2));
+			pixel_angle[x + w * y] = atan2(abs_height[x + w * y], pixel_base[x + w * y]);
+			pixel_focus[x + w * y] = sqrt(pow(pixel_base[x + w * y], 2) + pow(abs_height[x + w * y], 2));
+			pixel_base_ang[x + w * y] = asin(focus_len/pixel_base[x + w * y]);
+		}
+	}
 
 	
 	if (control.trigger > 0 && !pressed) {
@@ -130,8 +133,7 @@ void ofApp::update(){
 		pressed = false;
 	}
 	
-	//float scale = receiver.getScale();
-	float scale = 1333.0;
+	float scale = receiver.getScale();
 
 	input->update();
 
@@ -145,8 +147,8 @@ void ofApp::update(){
 				if (depth[x + w * y] != 0 && depth[x + w * y] < 8000 && depth[x + w * y] == depth[x + w * y]) {
 					float* point = points[(x + w * y)].getPtr();
 
-					float obj_height = (depth[x + w * y] + pixel_focus[x + w * y]) *  abs_height[x + w * y] / pixel_focus[x + w * y];
-					float actual_pixel_base = sqrt(pow(depth[x + w * y] + pixel_focus[x + w * y], 2) - pow(obj_height, 2)) - pixel_base[x + w * y];
+					float obj_height = (depth[x + w * y]/1000.0 + pixel_focus[x + w * y]) *  abs_height[x + w * y] / pixel_focus[x + w * y];
+					float actual_pixel_base = sqrt(pow(depth[x + w * y]/1000.0 + pixel_focus[x + w * y],2) - pow(obj_height,2)) - pixel_base[x + w * y];
 
 					points[(x + w * y)] = cam.getPosition();
 					if (x >= w / 2.0)
@@ -159,7 +161,7 @@ void ofApp::update(){
 					else
 						points[(x + w * y)] += obj_height * cam.getYAxis() / (scale * 1.333);
 
-					points[(x + w * y)] += -sin(pixel_base_ang[x + w * y]) * actual_pixel_base * cam.getZAxis() / 1000.0;
+					points[(x + w * y)] += -sin(pixel_base_ang[x + w * y]) * actual_pixel_base * cam.getZAxis();
 					
 					int left_ind = x - 1 + w * y;
 					int diag_ind = x - 1 + w * (y - 1);
@@ -196,7 +198,6 @@ void ofApp::update(){
 	ofClear(0,0,0,255);
 	glDepthMask(GL_FALSE);  
 	input->draw(0, 0, 1280, 720);
-	text.drawString("Test Text", 100,100);
 	glDepthMask(GL_TRUE); 
 
 	
@@ -205,7 +206,7 @@ void ofApp::update(){
 
 	//.08m is the distance between tracker and camera lens
 	cam.move(0, -.08, 0);
-	//cam.setFov(receiver.getFov()); 
+	cam.setFov(receiver.getFov()); 
 	cam.begin();
 
 	if(!draw_mesh)
@@ -222,6 +223,12 @@ void ofApp::update(){
 
 	//z might still be around .06 but hard to tell
 	depth_cam.begin();
+	
+	ofDrawBitmapString("Testing Text", control.pos);
+	//ofTranslate(control.pos);
+	//text.drawString("Testing Text", 0, 0);
+	//ofTranslate(-control.pos);
+
 	circles.draw();
 	//controller.draw();
 	depth_cam.end();
