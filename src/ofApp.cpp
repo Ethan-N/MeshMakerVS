@@ -12,6 +12,7 @@ void ofApp::setup() {
 	cam.setNearClip(.35);
 	cam.setFarClip(10);
 	cam.setFov(40);
+	cam.setAspectRatio(1.7777777);
 
 	depth_cam.setParent(cam, true);
 	depth_cam.setPosition(cam.getX(), cam.getY(), cam.getZ()-.06);
@@ -51,6 +52,25 @@ void ofApp::setup() {
 		input = input_dev;
 	}
 
+	//float scale = receiver.getScale();
+	float scale = 2000.0;
+
+	image_diag = sqrt(pow(1280.0 / (2.0*scale), 2) + pow(720.0 / (2.0*scale), 2));
+	vert_fov = 46.0;
+	focus_len = (720.0 / (2.0*scale) / 2.0) / tan(vert_fov * 3.1415 / 180.0 / 2.0);
+
+
+	for (int y = 0; y < h; ++y) {
+		for (int x = 0; x < w; ++x) {
+			abs_height[x + w * y] = abs(720.0 / (2.0*scale) - (y/1.33333333)/scale);
+			abs_width[x + w * y] = abs(1280.0 / (2.0*scale) - x/scale);
+			pixel_base[x + w * y] = sqrt(pow(focus_len, 2) + pow(abs_width[x + w * y], 2));
+			pixel_angle[x + w * y] = atan2(abs_height[x + w * y], pixel_base[x + w * y]);
+			pixel_focus[x + w * y] = sqrt(pow(pixel_base[x + w * y], 2) + pow(abs_height[x + w * y], 2));
+			pixel_base_ang[x + w * y] = asin(focus_len/pixel_base[x + w * y]);
+		}
+	}
+
 
 	threshold = .001;
 
@@ -75,26 +95,6 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
-
-
-	float diag_fov = 70.0;
-	image_diag = sqrt(pow(w, 2) + pow(h, 2));
-	vert_fov = diag_fov * h / image_diag;
-	//46.0
-	vert_fov = receiver.getFov();
-	focus_len = (h / 2.0) / tan(vert_fov * 3.1415 / 180.0 / 2.0);
-
-	for (int y = 0; y < h; ++y) {
-		for (int x = 0; x < w; ++x) {
-			abs_height[x + w * y] = abs(h / 2.0 - y);
-			abs_width[x + w * y] = abs(w / 2.0 - x);
-			pixel_base[x + w * y] = sqrt(pow(focus_len, 2) + pow(abs_width[x + w * y], 2));
-			pixel_angle[x + w * y] = atan2(abs_height[x + w * y], pixel_base[x + w * y]);
-			pixel_focus[x + w * y] = sqrt(pow(pixel_base[x + w * y], 2) + pow(abs_height[x + w * y], 2));
-			pixel_base_ang[x + w * y] = asin(focus_len/pixel_base[x + w * y]);
-		}
-	}
-
 	
 	if (control.trigger > 0 && !pressed) {
 		pressed = true;
@@ -129,11 +129,10 @@ void ofApp::update(){
 			circlenum += 1;
 		}
 	}
+
 	else if (control.trigger == 0 && pressed) {
 		pressed = false;
 	}
-	
-	float scale = receiver.getScale();
 
 	input->update();
 
@@ -152,14 +151,14 @@ void ofApp::update(){
 
 					points[(x + w * y)] = cam.getPosition();
 					if (x >= w / 2.0)
-						points[(x + w * y)] += (cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale;
+						points[(x + w * y)] += (cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis();
 					else
-						points[(x + w * y)] += -(cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis() / scale;
+						points[(x + w * y)] += -(cos(pixel_base_ang[x + w * y]) * actual_pixel_base + abs_width[x + w * y]) * cam.getXAxis();
 
 					if (y >= h / 2.0)
-						points[(x + w * y)] += -obj_height * cam.getYAxis() / (scale * 1.333);
+						points[(x + w * y)] += -obj_height * cam.getYAxis();
 					else
-						points[(x + w * y)] += obj_height * cam.getYAxis() / (scale * 1.333);
+						points[(x + w * y)] += obj_height * cam.getYAxis();
 
 					points[(x + w * y)] += -sin(pixel_base_ang[x + w * y]) * actual_pixel_base * cam.getZAxis();
 					
@@ -200,13 +199,12 @@ void ofApp::update(){
 	input->draw(0, 0, 1280, 720);
 	glDepthMask(GL_TRUE); 
 
-	
-
 	//Circles and Mesh need to be in different cameras for glColorMask to Work
 
-	//.08m is the distance between tracker and camera lens
-	cam.move(0, -.08, 0);
-	cam.setFov(receiver.getFov()); 
+	//cam.tiltDeg(-receiver.getDelay());
+	cam.tiltDeg(-3.0);
+	//cam.setFov(receiver.getFov()); 
+	cam.setFov(85.0); 
 	cam.begin();
 
 	if(!draw_mesh)
@@ -218,7 +216,10 @@ void ofApp::update(){
 	if(!draw_mesh)
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
-	cam.move(0, .08, 0);
+	cam.tiltDeg(3.0);
+	//cam.tiltDeg(receiver.getDelay());
+
+
 	
 
 	//z might still be around .06 but hard to tell
