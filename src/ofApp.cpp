@@ -71,16 +71,28 @@ void ofApp::setup() {
 		}
 	}
 
-
 	threshold = .001;
 
-	
-	text.load("swromns.ttf", 32);
 
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
 //--------------------------------------------------------------
 void ofApp::update(){
+
+	//string words = receiver.getText();
+	string words = "Test Text";
+	text.load("swromns.ttf", 100, true, false, true);
+	textfbo.allocate(text.stringWidth(words),text.stringHeight(words));
+
+	textfbo.begin();
+	ofClear(255,255,255, 0);
+	ofSetColor(0);
+	text.drawString(words, 0, text.stringHeight(words));
+	textfbo.end();
+	box.set(textfbo.getWidth(), textfbo.getHeight(), .1, 1, 2, false);
+	box.mapTexCoordsFromTexture(textfbo.getTexture());
+	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
+	box.setScale(.0001);
 
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
@@ -220,15 +232,14 @@ void ofApp::update(){
 	//cam.tiltDeg(receiver.getDelay());
 
 
+	box.setPosition(control.pos);
+	box.setOrientation(control.quat);
 	
 
 	//z might still be around .06 but hard to tell
 	depth_cam.begin();
 	
-	ofDrawBitmapString("Testing Text", control.pos);
-	//ofTranslate(control.pos);
-	//text.drawString("Testing Text", 0, 0);
-	//ofTranslate(-control.pos);
+	box.draw();
 
 	circles.draw();
 	//controller.draw();
