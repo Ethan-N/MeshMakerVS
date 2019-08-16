@@ -75,7 +75,13 @@ void Receiver::threadedFunction() {
                 controllerState.quat = pointer.getGlobalOrientation();
                 controllerState.trigger = m.getArgAsFloat(7);
                 unlock();
-            } else if (addr == "/fov") {
+			}
+			else if (addr == "/text") {
+				//lock();
+				//text = m.getArgAsString(0);
+				//unlock();
+			}
+			else if (addr == "/fov") {
                 lock();
                 fov = m.getArgAsFloat(0);
                 unlock();
@@ -176,4 +182,12 @@ int Receiver::getBigwigLevel() {
     result = bitwigLevel;
     unlock();
     return result;
+}
+
+string Receiver::getText() {
+	string result;
+	lock();
+	result = text;
+	unlock();
+	return result;
 }
