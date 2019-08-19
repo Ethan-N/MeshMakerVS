@@ -74,8 +74,9 @@ void ofApp::setup() {
 	threshold = .001;
 	
 	string words = "Testing Text";
-	text.load("swromns.ttf", 100, true, false, true);
-	textfbo.allocate(text.stringWidth(words),text.stringHeight(words), GL_RGBA);
+	text.load("impact.ttf", 100, true, false, true);
+	//Expand bounding box
+	textfbo.allocate(text.stringWidth(words),text.getAscenderHeight()-text.getDescenderHeight()*1.5, GL_RGBA);
 
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
@@ -88,9 +89,9 @@ void ofApp::update(){
 	textfbo.begin();
 	ofClear(255,255,255, 1.0);
 	ofSetColor(255);
-	text.drawString(words, 0, text.stringHeight(words));
+	text.drawString(words, 0, text.getAscenderHeight()-text.getDescenderHeight()*1.0);
 	textfbo.end();
-	box.set(textfbo.getWidth(), textfbo.getHeight(), .1, 1, 2, false);
+	box.set(textfbo.getWidth(), text.getAscenderHeight()-text.getDescenderHeight()*1.5, .1, 1, 2, false);
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
 	box.setScale(.0003);
