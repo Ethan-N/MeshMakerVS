@@ -77,9 +77,9 @@ void Receiver::threadedFunction() {
                 unlock();
 			}
 			else if (addr == "/text") {
-				//lock();
-				//text = m.getArgAsString(0);
-				//unlock();
+				lock();
+				text = m.getArgAsString(0);
+				unlock();
 			}
 			else if (addr == "/fov") {
                 lock();

@@ -26,7 +26,7 @@ void ofApp::setup() {
 	// Threaded OSC Receive
 	receiver.startThread();
 
-	controller.setScale(.01);
+	controller.setScale(.005);
 
 	st.startThread();
 
@@ -72,7 +72,10 @@ void ofApp::setup() {
 	}
 
 	threshold = .001;
-
+	
+	string words = "Testing Text";
+	text.load("swromns.ttf", 100, true, false, true);
+	textfbo.allocate(text.stringWidth(words),text.stringHeight(words), GL_RGBA);
 
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
@@ -80,19 +83,17 @@ void ofApp::setup() {
 void ofApp::update(){
 
 	//string words = receiver.getText();
-	string words = "Test Text";
-	text.load("swromns.ttf", 100, true, false, true);
-	textfbo.allocate(text.stringWidth(words),text.stringHeight(words));
+	string words = "Testing Text";
 
 	textfbo.begin();
-	ofClear(255,255,255, 0);
-	ofSetColor(0);
+	ofClear(255,255,255, 1.0);
+	ofSetColor(255);
 	text.drawString(words, 0, text.stringHeight(words));
 	textfbo.end();
 	box.set(textfbo.getWidth(), textfbo.getHeight(), .1, 1, 2, false);
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
-	box.setScale(.0001);
+	box.setScale(.0003);
 
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
@@ -203,8 +204,6 @@ void ofApp::update(){
 		vbo.setIndexData(&faces[0], count, GL_DYNAMIC_DRAW);
 	}
 
-	
-
 	fbo.begin();
 	ofClear(0,0,0,255);
 	glDepthMask(GL_FALSE);  
@@ -231,18 +230,17 @@ void ofApp::update(){
 	cam.tiltDeg(3.0);
 	//cam.tiltDeg(receiver.getDelay());
 
-
 	box.setPosition(control.pos);
 	box.setOrientation(control.quat);
-	
 
-	//z might still be around .06 but hard to tell
 	depth_cam.begin();
 	
+	textfbo.getTexture().bind();
 	box.draw();
+	textfbo.getTexture().unbind();
+
 
 	circles.draw();
-	//controller.draw();
 	depth_cam.end();
 	fbo.end();
 	
