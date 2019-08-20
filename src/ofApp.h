@@ -39,7 +39,6 @@ public:
 	ofVec3f points[1280 * 960];
 	float depth[1280 * 960];
 	int count;
-	float threshold;
 
 	int w;
 	int h;

@@ -73,7 +73,7 @@ void ofApp::setup() {
 		}
 	}
 
-	threshold = .001;
+	
 	
 	string words = "Testing Text";
 	text.load("impact.ttf", 100, true, false, true);
@@ -118,7 +118,7 @@ void ofApp::update(){
 		positions[0] = control.pos;
 		controller.setPosition(control.pos);
 		circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
-		circles.setColor(circlenum, ofColor::fromHsb(255*control.trigger, 255, 255));
+		circles.setColor(circlenum, ofColor::fromHsb(128*control.trigger+64, 255, 255));
 		circles.updateGpu();
 		circlenum += 1;
 	}
