@@ -30,17 +30,13 @@ public:
 
 	void exit();
 
-	ofTexture cameraDepth;
     ofVbo vbo;
     ofCamera cam;
 
 	Structure st;
 
-	uint8_t colors[640 * 480 * 3];
-
-	ofIndexType faces[1280 * 960 * 6];
+	ofIndexType faces[1280 * 960];
 	ofVec3f points[1280 * 960];
-	ofFloatColor color[640 * 480];
 	float depth[1280 * 960];
 	int count;
 	float threshold;
@@ -83,5 +79,6 @@ public:
 	shared_ptr<ofxBlackmagic::Input> input;
 
 	ofFbo fbo;
+	ofShader mesh_shader;
 	ofxSpout2::Sender spout;
 };
