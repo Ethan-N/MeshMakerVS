@@ -74,6 +74,8 @@ void Receiver::threadedFunction() {
                 controllerState.pos = pointer.getGlobalPosition();
                 controllerState.quat = pointer.getGlobalOrientation();
                 controllerState.trigger = m.getArgAsFloat(7);
+                controllerState.trackpad_x = m.getArgAsFloat(8);
+                controllerState.trackpad_y = m.getArgAsFloat(9);
                 unlock();
 			}
 			else if (addr == "/text") {
