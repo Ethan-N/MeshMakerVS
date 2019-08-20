@@ -8,6 +8,7 @@ void ofApp::setup() {
 	ofSetColor(255);
 	ofEnableDepthTest();
 	ofSetVerticalSync(false);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 
 	cam.setNearClip(.35);
 	cam.setFarClip(10);
@@ -175,29 +176,9 @@ void ofApp::update(){
 						points[(x + w * y)] += obj_height * cam.getYAxis();
 
 					points[(x + w * y)] += -sin(pixel_base_ang[x + w * y]) * actual_pixel_base * cam.getZAxis();
-					
-					int left_ind = x - 1 + w * y;
-					int diag_ind = x - 1 + w * (y - 1);
-					int top_ind = x + w * (y - 1);
 
-					if (points[x + w * y].squareDistance(points[diag_ind]) < threshold) {
-						//Triangle 1, Bottom Left
-						if (points[x + w * y].squareDistance(points[left_ind]) < threshold and points[left_ind].squareDistance(points[diag_ind]) < threshold) {
-							faces[count] = diag_ind;
-							faces[count + 1] = x + w * y;
-							faces[count + 2] = left_ind;
-
-							count += 3;
-						}
-						//Triangle 2, Top Right
-						if (points[x + w * y].squareDistance(points[top_ind]) < threshold and points[top_ind].squareDistance(points[diag_ind]) < threshold) {
-							faces[count] = diag_ind;
-							faces[count + 1] = x + w * y;
-							faces[count + 2] = top_ind;
-
-							count += 3;
-						}
-					}
+					faces[count] = x + w * y;
+					count += 1;
 				}
 			}
 		}
@@ -221,10 +202,7 @@ void ofApp::update(){
 
 	if(!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-	if(triangles)
-		vbo.drawElements(GL_TRIANGLES, count);
-	else
-		vbo.drawElements(GL_POINTS, count);
+	vbo.drawElements(GL_POINTS, count);
 	if(!draw_mesh)
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
