@@ -152,6 +152,12 @@ double Receiver::getScale() {
     return result;
 }
 
+void Receiver::setDelay(double value) {
+	lock();
+	delay = value;
+	unlock();
+}
+
 double Receiver::getDelay() {
     double result;
     lock();

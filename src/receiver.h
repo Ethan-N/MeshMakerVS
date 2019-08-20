@@ -26,6 +26,7 @@ public:
     double getFov();
     double getScale();
     double getDelay();
+	void setDelay(double value);
     Orientation7 getController();
     Orientation7 getPreviousCameraTrigger();
     double getBigwigPosition();
@@ -38,7 +39,7 @@ protected:
     Orientation7 controllerState;
     double fov = 70;
     double scale = 1.;
-    double delay = 0.09;
+    double delay = 0.00;
     double bitwigPosition = 0;
     int bitwigLevel = 0;
 	string text;

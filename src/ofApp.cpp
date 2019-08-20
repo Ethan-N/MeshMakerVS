@@ -26,6 +26,7 @@ void ofApp::setup() {
 
 	// Threaded OSC Receive
 	receiver.startThread();
+	receiver.setDelay(.095);
 
 	controller.setScale(.005);
 
