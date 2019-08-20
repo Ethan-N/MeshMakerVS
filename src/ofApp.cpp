@@ -73,7 +73,7 @@ void ofApp::setup() {
 		}
 	}
 
-	
+	mesh_shader.load("meshvert.glsl", "meshfrag.glsl");
 	
 	string words = "Testing Text";
 	text.load("impact.ttf", 100, true, false, true);
@@ -118,7 +118,7 @@ void ofApp::update(){
 		positions[0] = control.pos;
 		controller.setPosition(control.pos);
 		circles.setMatrix(circlenum, controller.getLocalTransformMatrix());
-		circles.setColor(circlenum, ofColor::fromHsb(128*control.trigger+64, 255, 255));
+		circles.setColor(circlenum, ofColor::fromHsb(255*control.trigger, 150, 128));
 		circles.updateGpu();
 		circlenum += 1;
 	}
@@ -140,7 +140,7 @@ void ofApp::update(){
 		for (int i = 1; i < 11; i++) {
 			controller.setPosition(ofInterpolateCatmullRom(positions[0], positions[1], positions[2], positions[3], i * .1));
 			circles.setMatrix(circlenum, controller.getGlobalTransformMatrix());
-			circles.setColor(circlenum, ofColor::fromHsb(255 * control.trigger, 255, 255));
+			circles.setColor(circlenum, ofColor::fromHsb(255*control.trigger, 150, 128));
 			circles.updateGpu();
 			circlenum += 1;
 		}
@@ -203,7 +203,9 @@ void ofApp::update(){
 
 	if(!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	mesh_shader.begin();
 	vbo.drawElements(GL_POINTS, count);
+	mesh_shader.end();
 	if(!draw_mesh)
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
@@ -213,6 +215,7 @@ void ofApp::update(){
 	box.setPosition(control.pos);
 	box.setOrientation(control.quat);
 
+	depth_cam.setFov(receiver.getFov());
 	depth_cam.begin();
 	
 	textfbo.getTexture().bind();
