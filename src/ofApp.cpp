@@ -247,9 +247,6 @@ void ofApp::keyPressed(int key){
 	case 'm':
 		draw_mesh = !draw_mesh;
 		break;
-	case 't':
-		triangles = !triangles;
-		break;
 	case 'e':
 		circles.clear();
 		circlenum = 0;

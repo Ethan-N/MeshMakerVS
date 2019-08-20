@@ -44,7 +44,6 @@ public:
 	int h;
 	
 	bool draw_mesh;
-	bool triangles;
 
 	ofCamera depth_cam;
 	ofCamera controller;
