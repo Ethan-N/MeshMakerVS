@@ -77,12 +77,12 @@ void ofApp::setup() {
 	string words = "Testing Text";
 	text.load("impact.ttf", 100, true, false, true);
 	//Expand bounding box
-	textfbo.allocate(text.stringWidth(words),text.getAscenderHeight()-text.getDescenderHeight()*1.5, GL_RGBA);
+	textfbo.allocate(text.stringWidth(words),text.getAscenderHeight(), GL_RGBA);
 
 	textfbo.begin();
 	ofClear(255,255,255, 1.0);
 	ofSetColor(255);
-	text.drawString(words, 0, text.getAscenderHeight()-text.getDescenderHeight()*1.0);
+	text.drawString(words, 0, text.getAscenderHeight()+text.getDescenderHeight());
 	textfbo.end();
 
 
@@ -108,7 +108,7 @@ void ofApp::update() {
 
 	//string words = receiver.getText();
 
-	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 5.0), (text.getAscenderHeight() - text.getDescenderHeight()*1.5)*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
+	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 5.0), textfbo.getHeight()*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 
