@@ -33,7 +33,6 @@ void ofApp::setup() {
 	st.startThread();
 
 	draw_mesh = false;
-	triangles = true;
 
 	curve_count = 0;
 	circlenum = 0;
@@ -80,24 +79,19 @@ void ofApp::setup() {
 	//Expand bounding box
 	textfbo.allocate(text.stringWidth(words),text.getAscenderHeight()-text.getDescenderHeight()*1.5, GL_RGBA);
 
-	fbo.allocate(ofGetWidth(), ofGetHeight());
-}
-//--------------------------------------------------------------
-void ofApp::update(){
-
-	//string words = receiver.getText();
-	string words = "Testing Text";
-
 	textfbo.begin();
 	ofClear(255,255,255, 1.0);
 	ofSetColor(255);
 	text.drawString(words, 0, text.getAscenderHeight()-text.getDescenderHeight()*1.0);
 	textfbo.end();
-	box.set(textfbo.getWidth(), text.getAscenderHeight()-text.getDescenderHeight()*1.5, .1, 1, 2, false);
-	box.mapTexCoordsFromTexture(textfbo.getTexture());
-	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
+
+
 	box.setScale(.0003);
 
+	fbo.allocate(ofGetWidth(), ofGetHeight());
+}
+//--------------------------------------------------------------
+void ofApp::update(){
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
@@ -111,6 +105,13 @@ void ofApp::update(){
 	Orientation7 control = receiver.getController();
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
+
+	//string words = receiver.getText();
+	
+	box.set(textfbo.getWidth()*ofMap(control.trackpad_x,-1.0,1.0,0.0,5.0), (text.getAscenderHeight()-text.getDescenderHeight()*1.5)*ofMap(control.trackpad_y,-1.0,1.0,0.0,10.0), .1, 1, 2, false);
+	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
+	box.mapTexCoordsFromTexture(textfbo.getTexture());
+
 	
 	if (control.trigger > 0 && !pressed) {
 		pressed = true;
@@ -215,7 +216,7 @@ void ofApp::update(){
 	box.setPosition(control.pos);
 	box.setOrientation(control.quat);
 
-	depth_cam.setFov(receiver.getFov());
+	depth_cam.setFov(32.5);
 	depth_cam.begin();
 	
 	textfbo.getTexture().bind();

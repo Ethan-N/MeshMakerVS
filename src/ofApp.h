@@ -52,7 +52,9 @@ public:
 	ofFbo textfbo;
 	ofBoxPrimitive box;
 
-	vector<ofNode> nodes;
+	vector<ofBoxPrimitive> boxes;
+	vector<ofFbo> words;
+
     Receiver receiver;
 
 	bool pressed;
