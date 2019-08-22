@@ -53,7 +53,7 @@ public:
 	ofBoxPrimitive box;
 
 	vector<ofBoxPrimitive> boxes;
-	vector<ofFbo> words;
+	vector<ofFbo> fbos;
 
     Receiver receiver;
 
