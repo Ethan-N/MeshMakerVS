@@ -34,12 +34,12 @@ void ofApp::setup() {
 
 	draw_mesh = false;
 
-	curve_count = 0;
+	/*curve_count = 0;
 	circlenum = 0;
 	circles.resize(100000);
 	circles.updateGpu();
 	ofLog() << circles.getMatrix(0);
-	pressed = false;
+	pressed = false;*/
 
 	auto deviceList = ofxBlackmagic::Iterator::getDeviceList();
 
@@ -91,7 +91,7 @@ void ofApp::setup() {
 	fbo.allocate(ofGetWidth(), ofGetHeight());
 }
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
 	std::stringstream strm;
 	strm << "fps: " << ofGetFrameRate();
 	ofSetWindowTitle(strm.str());
@@ -107,12 +107,19 @@ void ofApp::update(){
 	ofVec3f old_pos = controller.getPosition();
 
 	//string words = receiver.getText();
-	
-	box.set(textfbo.getWidth()*ofMap(control.trackpad_x,-1.0,1.0,0.0,5.0), (text.getAscenderHeight()-text.getDescenderHeight()*1.5)*ofMap(control.trackpad_y,-1.0,1.0,0.0,10.0), .1, 1, 2, false);
+
+	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 5.0), (text.getAscenderHeight() - text.getDescenderHeight()*1.5)*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 
-	
+	if (control.trigger > 0 && !pressed)
+		pressed = true;
+	else if (control.trigger == 0 && pressed) {
+		boxes.push_back(box);
+		fbos.push_back(textfbo);
+		pressed = false;
+	}
+	/*
 	if (control.trigger > 0 && !pressed) {
 		pressed = true;
 		curve_count = 1;
@@ -145,7 +152,7 @@ void ofApp::update(){
 			circles.updateGpu();
 			circlenum += 1;
 		}
-	}
+	}*/
 
 	else if (control.trigger == 0 && pressed) {
 		pressed = false;
@@ -153,18 +160,18 @@ void ofApp::update(){
 
 	input->update();
 
-	if(st.lastDepthFrame().isValid()){
-		std::fill(depth, depth+w*h, 0);
+	if (st.lastDepthFrame().isValid()) {
+		std::fill(depth, depth + w * h, 0);
 		memcpy(depth, st.lastDepthFrame().depthInMillimeters(), sizeof(float)*w*h);
-		
+
 		count = 0;
-		for (int y=0; y<h; ++y) {
-			for (int x=0; x<w; ++x) {
+		for (int y = 0; y < h; ++y) {
+			for (int x = 0; x < w; ++x) {
 				if (depth[x + w * y] != 0 && depth[x + w * y] < 8000 && depth[x + w * y] == depth[x + w * y]) {
 					float* point = points[(x + w * y)].getPtr();
 
-					float obj_height = (depth[x + w * y]/1000.0 + pixel_focus[x + w * y]) *  abs_height[x + w * y] / pixel_focus[x + w * y];
-					float actual_pixel_base = sqrt(pow(depth[x + w * y]/1000.0 + pixel_focus[x + w * y],2) - pow(obj_height,2)) - pixel_base[x + w * y];
+					float obj_height = (depth[x + w * y] / 1000.0 + pixel_focus[x + w * y]) *  abs_height[x + w * y] / pixel_focus[x + w * y];
+					float actual_pixel_base = sqrt(pow(depth[x + w * y] / 1000.0 + pixel_focus[x + w * y], 2) - pow(obj_height, 2)) - pixel_base[x + w * y];
 
 					points[(x + w * y)] = cam.getPosition();
 					if (x >= w / 2.0)
@@ -189,25 +196,25 @@ void ofApp::update(){
 	}
 
 	fbo.begin();
-	ofClear(0,0,0,255);
-	glDepthMask(GL_FALSE);  
+	ofClear(0, 0, 0, 255);
+	glDepthMask(GL_FALSE);
 	input->draw(0, 0, 1280, 720);
-	glDepthMask(GL_TRUE); 
+	glDepthMask(GL_TRUE);
 
 	//Circles and Mesh need to be in different cameras for glColorMask to Work
 
 	//cam.tiltDeg(-receiver.getDelay());
 	cam.tiltDeg(-3.0);
 	//cam.setFov(receiver.getFov()); 
-	cam.setFov(85.0); 
+	cam.setFov(85.0);
 	cam.begin();
 
-	if(!draw_mesh)
+	if (!draw_mesh)
 		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 	mesh_shader.begin();
 	vbo.drawElements(GL_POINTS, count);
 	mesh_shader.end();
-	if(!draw_mesh)
+	if (!draw_mesh)
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	cam.end();
 	cam.tiltDeg(3.0);
@@ -218,13 +225,18 @@ void ofApp::update(){
 
 	depth_cam.setFov(32.5);
 	depth_cam.begin();
-	
+
 	textfbo.getTexture().bind();
 	box.draw();
 	textfbo.getTexture().unbind();
 
+	for (int i = 0; i < boxes.size(); i++) {
+		fbos[i].getTexture().bind();
+		boxes[i].draw();
+		fbos[i].getTexture().unbind();
+	}
 
-	circles.draw();
+	//circles.draw();
 	depth_cam.end();
 	fbo.end();
 	
