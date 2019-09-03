@@ -54,8 +54,12 @@ public:
 
 	vector<ofBoxPrimitive> boxes;
 	vector<ofFbo> fbos;
+	vector<string> strings;
+	string words;
 
     Receiver receiver;
+
+	ofstream writesave;
 
 	bool pressed;
 	int curve_count;

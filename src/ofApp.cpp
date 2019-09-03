@@ -74,8 +74,7 @@ void ofApp::setup() {
 
 	mesh_shader.load("meshvert.glsl", "meshfrag.glsl");
 	
-	string words = "Testing Text";
-	text.load("impact.ttf", 100, true, false, true);
+	text.load("impact.ttf", 32, true, false, true);
 	//Expand bounding box
 	textfbo.allocate(text.stringWidth(words),text.getAscenderHeight(), GL_RGBA);
 
@@ -106,9 +105,21 @@ void ofApp::update() {
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
 
-	//string words = receiver.getText();
+	
+	
+	if (receiver.getText() != "" && receiver.getText() != words) {
+		words = receiver.getText();
+		textfbo.allocate(text.stringWidth(words),text.getAscenderHeight(), GL_RGBA);
+		
 
-	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 5.0), textfbo.getHeight()*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
+		textfbo.begin();
+		ofClear(255,255,255, 1.0);
+		ofSetColor(255);
+		text.drawString(words, 0, text.getAscenderHeight()+text.getDescenderHeight());
+		textfbo.end();
+	}
+
+	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 10.0), textfbo.getHeight()*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 
@@ -117,6 +128,7 @@ void ofApp::update() {
 	else if (control.trigger == 0 && pressed) {
 		boxes.push_back(box);
 		fbos.push_back(textfbo);
+		strings.push_back(words + "_");
 		pressed = false;
 	}
 	/*
@@ -263,6 +275,82 @@ void ofApp::keyPressed(int key){
 	case 'e':
 		circles.clear();
 		circlenum = 0;
+		break;
+	case 'u':
+		boxes.pop_back();
+		fbos.pop_back();
+		break;
+	case 's':
+		writesave.open("save.txt");
+		for (int i = 0; i < boxes.size(); i++) {
+			writesave << strings[i] << " " << boxes[i].getWidth() << " " << boxes[i].getHeight() << " " << boxes[i].getGlobalPosition() << " " << boxes[i].getGlobalOrientation() << "\n";
+		}
+		writesave.close();
+		break;
+	case 'l':
+		boxes.clear();
+		fbos.clear();
+
+		ifstream readsave("save.txt");
+		string line;
+		if (readsave.is_open())
+		{
+			while ( getline (readsave,line) )
+			{
+				//Index of spot in word
+				int index = line.find("_", 0);
+				string words = line.substr(0, index);
+				index += 2;
+				textfbo.allocate(text.stringWidth(words),text.getAscenderHeight(), GL_RGBA);
+
+				textfbo.begin();
+				ofClear(255,255,255, 1.0);
+				ofSetColor(255);
+				text.drawString(words, 0, text.getAscenderHeight()+text.getDescenderHeight());
+				textfbo.end();
+
+				fbos.push_back(textfbo);
+				strings.push_back(words);
+	
+				int new_index = line.find(" ", index);
+				box.setWidth(stof(line.substr(index, new_index-index)));
+
+				index = new_index+1;
+				new_index = line.find(" ", index);
+				box.setHeight(stof(line.substr(index, new_index-index)));
+				
+				index = new_index+1;
+				new_index = line.find(",", index);
+				float x = stof(line.substr(index, new_index - index));
+				index = new_index+2;
+				new_index = line.find(",", index);
+				float y = stof(line.substr(index, new_index - index));
+				index = new_index+2;
+				new_index = line.find(" ", index);
+				float z = stof(line.substr(index, new_index - index));
+				box.setPosition(x, y, z);
+				
+				index = new_index+1;
+				new_index = line.find(",", index);
+				float num1 = stof(line.substr(index, new_index - index));
+				index = new_index+2;
+				new_index = line.find(",", index);
+				string test = line.substr(index, new_index - index);
+				float num2 = stof(line.substr(index, new_index - index));
+				index = new_index+2;
+				new_index = line.find(",", index);
+				float num3 = stof(line.substr(index, new_index - index));
+				index = new_index+2;
+				float num4 = stof(line.substr(index));
+				box.setGlobalOrientation(glm::quat(num1, num2, num3, num4));
+
+				box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
+				box.mapTexCoordsFromTexture(textfbo.getTexture());
+				
+				boxes.push_back(box);
+			}
+			readsave.close();
+		}
 		break;
 	}
 }
