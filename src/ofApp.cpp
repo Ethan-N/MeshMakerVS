@@ -26,7 +26,7 @@ void ofApp::setup() {
 
 	// Threaded OSC Receive
 	receiver.startThread();
-	receiver.setDelay(.095);
+	receiver.setDelay(.98);
 
 	controller.setScale(.005);
 
@@ -105,7 +105,7 @@ void ofApp::update() {
 	controller.setOrientation(control.quat);
 	ofVec3f old_pos = controller.getPosition();
 
-	
+	receiver.setDelay(receiver.getDelay());
 	
 	if (receiver.getText() != "" && receiver.getText() != words) {
 		words = receiver.getText();
@@ -119,7 +119,7 @@ void ofApp::update() {
 		textfbo.end();
 	}
 
-	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 10.0), textfbo.getHeight()*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 10.0), .1, 1, 2, false);
+	box.set(textfbo.getWidth()*ofMap(control.trackpad_x, -1.0, 1.0, 0.0, 15.0), textfbo.getHeight()*ofMap(control.trackpad_y, -1.0, 1.0, 0.0, 15.0), .1, 1, 2, false);
 	box.setSideColor(box.SIDE_FRONT, ofColor(255, 255, 255, 0.0));
 	box.mapTexCoordsFromTexture(textfbo.getTexture());
 
